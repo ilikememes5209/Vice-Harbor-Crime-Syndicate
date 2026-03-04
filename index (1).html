@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VICE HARBOR SYNDICATE — Crime Empire</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&family=Share+Tech+Mono&display=swap');
+:root{--blood:#8B0000;--gold:#C9A84C;--smoke:#1a1a1a;--ash:#2d2d2d;--paper:#e8dcc8;--danger:#ff2222;--safe:#3a8c3a;--blue:#1a4a8a;--orange:#c07020;--purple:#6a0dad;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--smoke);color:var(--paper);font-family:'Special Elite',cursive;min-height:100vh;overflow-x:hidden;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.3) 2px,rgba(0,0,0,.3) 4px),
+  repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(0,0,0,.1) 2px,rgba(0,0,0,.1) 4px);}
+header{background:#0a0a0a;border-bottom:3px solid var(--blood);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(139,0,0,.5);flex-wrap:wrap;gap:6px;}
+header h1{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:8px;color:var(--gold);text-shadow:0 0 20px rgba(201,168,76,.4);}
+.header-stats{display:flex;gap:6px;flex-wrap:wrap;}
+.stat-pill{background:var(--ash);border:1px solid var(--gold);padding:4px 9px;font-family:'Share Tech Mono',monospace;font-size:.74rem;color:var(--gold);white-space:nowrap;}
+.stat-pill span{color:white;font-weight:bold;}
+.rep-badge{background:var(--blood);color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:2px;padding:4px 9px;border:1px solid var(--gold);}
+.fbi-badge{background:#001a4d;color:#66aaff;font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:2px;padding:4px 9px;border:1px solid #3366aa;}
+.tab-bar{display:flex;background:#0d0d0d;border-bottom:2px solid #333;overflow-x:auto;}
+.tab{padding:9px 16px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:.82rem;cursor:pointer;color:#666;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:#aaa;}.tab.active{color:var(--gold);border-bottom-color:var(--gold);background:#111;}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.game-container{display:grid;grid-template-columns:250px 1fr 230px;gap:0;min-height:calc(100vh - 110px);}
+.left-panel{background:#111;border-right:2px solid #333;padding:13px;overflow-y:auto;max-height:calc(100vh - 110px);}
+.center-panel{padding:16px;background:#161616;overflow-y:auto;max-height:calc(100vh - 110px);}
+.right-panel{background:#111;border-left:2px solid #333;padding:13px;overflow-y:auto;max-height:calc(100vh - 110px);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:#111;}::-webkit-scrollbar-thumb{background:var(--blood);}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:4px;color:var(--blood);border-bottom:1px solid var(--blood);padding-bottom:4px;margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+.section-divider{border:none;border-top:1px solid #333;margin:9px 0;}
+.op-card{background:var(--ash);border:1px solid #444;border-left:3px solid var(--gold);padding:9px;margin-bottom:7px;cursor:pointer;transition:all .2s;position:relative;}
+.op-card:hover{border-left-color:var(--blood);background:#3a3a3a;transform:translateX(3px);}
+.op-card.locked{opacity:.4;cursor:not-allowed;border-left-color:#555;}
+.op-card.used{opacity:.5;cursor:not-allowed;border-left-color:#444;background:#1e1e1e;}
+.op-name{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:2px;color:var(--paper);margin-bottom:2px;}
+.op-stats{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#aaa;display:flex;justify-content:space-between;gap:3px;flex-wrap:wrap;}
+.op-risk{color:var(--danger);}.op-reward{color:var(--safe);}
+.btn{width:100%;padding:8px;background:var(--blood);border:none;color:var(--paper);font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:3px;cursor:pointer;transition:background .2s;margin-top:4px;}
+.btn:hover{background:#a00;}.btn:disabled{background:#333;color:#555;cursor:not-allowed;}
+.btn.gold{background:transparent;border:2px solid var(--gold);color:var(--gold);}
+.btn.gold:hover{background:var(--gold);color:black;}
+.btn.blue{background:var(--blue);border:none;}.btn.blue:hover{background:#1e5aa0;}
+.btn.green{background:#1a6a1a;border:none;}.btn.green:hover{background:#228022;}
+.btn.sm{padding:4px 9px;font-size:.72rem;margin-top:2px;width:auto;}
+/* MAP */
+.city-map{background:#0d0d0d;border:2px solid #333;height:320px;position:relative;overflow:hidden;margin-bottom:13px;}
+.map-bg{position:absolute;inset:0;background:repeating-linear-gradient(45deg,#111 0px,#111 10px,#131313 10px,#131313 20px);opacity:.5;}
+.district{position:absolute;border:2px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;font-family:'Bebas Neue',sans-serif;text-align:center;font-size:.72rem;letter-spacing:1px;padding:4px;}
+.district:hover{z-index:10;transform:scale(1.06);}
+.district.owned{border-color:var(--gold);background:rgba(201,168,76,.15);}
+.district.rival{border-color:var(--blood);background:rgba(139,0,0,.15);}
+.district.neutral{border-color:#555;background:rgba(50,50,50,.5);}
+.district.contested{border-color:#ff8800;background:rgba(255,136,0,.1);animation:pulse-o 1.5s infinite;}
+@keyframes pulse-o{0%,100%{box-shadow:0 0 6px rgba(255,136,0,.3)}50%{box-shadow:0 0 16px rgba(255,136,0,.8)}}
+.d-name{font-size:.68rem;color:white;}.d-income{font-size:.58rem;color:var(--gold);font-family:'Share Tech Mono',monospace;}
+.d-icon{font-size:1rem;margin-bottom:1px;}.d-def{font-size:.55rem;color:#5af;font-family:'Share Tech Mono',monospace;}
+/* LOG */
+.event-log{background:#0d0d0d;border:1px solid #333;border-left:3px solid var(--gold);height:148px;overflow-y:auto;padding:9px;font-family:'Share Tech Mono',monospace;font-size:.7rem;line-height:1.65;}
+.log-entry{margin-bottom:2px;opacity:0;animation:fadeIn .5s forwards;}
+.log-entry.success{color:#7fcc7f;}.log-entry.fail{color:var(--danger);}.log-entry.info{color:#aaa;}.log-entry.warn{color:#ffaa44;}.log-entry.event{color:#cc88ff;}.log-entry.fbi{color:#66aaff;}
+.log-time{color:#555;margin-right:5px;}
+@keyframes fadeIn{to{opacity:1;}}
+/* CREW */
+.crew-member{background:var(--ash);border:1px solid #444;padding:8px;margin-bottom:6px;display:flex;align-items:center;gap:7px;position:relative;}
+.crew-avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.crew-info{flex:1;min-width:0;}
+.crew-name{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:1px;}
+.crew-role{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:#888;}
+.cbar-bg{background:#222;height:3px;border-radius:2px;margin-bottom:2px;}
+.cbar{height:3px;border-radius:2px;transition:width .5s;}
+.cbar-l{background:linear-gradient(90deg,var(--gold),var(--blood));}.cbar-s{background:linear-gradient(90deg,#3388ff,#66aaff);}.cbar-x{background:linear-gradient(90deg,#3a8c3a,#7fcc7f);}
+.crew-status{font-family:'Share Tech Mono',monospace;font-size:.55rem;padding:2px 4px;border:1px solid;flex-shrink:0;}
+.s-idle{color:#888;border-color:#555;}.s-active{color:#7fcc7f;border-color:#3a8c3a;}.s-injured{color:var(--danger);border-color:var(--danger);}.s-imprisoned{color:#cc88ff;border-color:#8844cc;}
+.crew-lv{font-family:'Bebas Neue',sans-serif;font-size:.75rem;color:var(--gold);margin-left:2px;}
+.fire-btn{position:absolute;top:2px;right:2px;background:none;border:none;color:#555;cursor:pointer;font-size:.7rem;}
+.fire-btn:hover{color:var(--danger);}
+/* HEAT */
+.heat-meter{background:var(--ash);border:1px solid #444;padding:9px;margin-bottom:9px;}
+.heat-label{font-family:'Bebas Neue',sans-serif;letter-spacing:3px;font-size:.78rem;display:flex;justify-content:space-between;margin-bottom:4px;}
+.heat-bar-bg{background:#222;height:8px;border-radius:2px;overflow:hidden;}
+.heat-bar{height:100%;border-radius:2px;transition:width .8s;}
+.wanted-stars{font-size:1rem;letter-spacing:3px;text-align:center;margin-top:4px;}
+/* FBI meter */
+.fbi-meter{background:#001020;border:1px solid #3366aa;padding:9px;margin-bottom:9px;}
+.fbi-label{font-family:'Bebas Neue',sans-serif;letter-spacing:3px;font-size:.78rem;display:flex;justify-content:space-between;margin-bottom:4px;color:#66aaff;}
+.fbi-bar-bg{background:#001530;height:8px;border-radius:2px;overflow:hidden;}
+.fbi-bar{height:8px;border-radius:2px;background:linear-gradient(90deg,#1155aa,#4499ff);transition:width .8s;}
+.fbi-threat{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:#4499ff;text-align:center;margin-top:4px;}
+/* TURN BUTTON */
+.turn-btn{background:linear-gradient(135deg,#600 0%,var(--blood) 100%);border:2px solid var(--gold);color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:4px;padding:10px;width:100%;cursor:pointer;transition:all .2s;margin-top:7px;}
+.turn-btn:hover{background:linear-gradient(135deg,var(--blood) 0%,#c00 100%);box-shadow:0 0 18px rgba(139,0,0,.7);}
+.turn-counter{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:#666;text-align:center;margin-top:3px;}
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.active{display:flex;}
+.modal{background:#111;border:2px solid var(--gold);padding:20px;max-width:460px;width:92%;box-shadow:0 0 40px rgba(201,168,76,.3);animation:mIn .3s ease;max-height:90vh;overflow-y:auto;}
+@keyframes mIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:4px;color:var(--gold);margin-bottom:8px;border-bottom:1px solid var(--blood);padding-bottom:4px;}
+.modal p{color:#bbb;font-size:.82rem;line-height:1.6;margin-bottom:11px;}
+.mstats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.mstat{background:var(--ash);padding:6px;text-align:center;}
+.mstat-l{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:#888;}
+.mstat-v{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:white;}
+.mbtns{display:flex;gap:7px;}.mbtns .btn{flex:1;}
+/* MARKET / CONTRACTS / RIVALS */
+.market-item{background:var(--ash);border:1px solid #555;border-left:3px solid var(--orange);padding:9px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
+.market-item.owned{border-left-color:#555;opacity:.5;}
+.mi-name{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:2px;}
+.mi-desc{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#888;margin-top:2px;}
+.mi-price{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:var(--gold);text-align:right;white-space:nowrap;}
+.contract-card{background:var(--ash);border:1px solid #444;border-left:3px solid #cc88ff;padding:9px;margin-bottom:7px;cursor:pointer;transition:all .2s;}
+.contract-card:hover{background:#3a3a3a;border-left-color:#aa55dd;transform:translateX(3px);}
+.contract-card.done{opacity:.4;cursor:default;border-left-color:#444;}
+.cc-name{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:2px;}
+.cc-reward{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#cc88ff;}
+.cc-req{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#888;margin-top:2px;}
+.rival-card{background:var(--ash);border:1px solid var(--blood);padding:9px;margin-bottom:8px;}
+.rival-name{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:3px;color:var(--danger);}
+.rival-info{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:#aaa;margin-top:2px;}
+.rival-bar-bg{background:#222;height:5px;border-radius:2px;margin-top:4px;}
+.rival-bar{height:5px;border-radius:2px;background:linear-gradient(90deg,var(--blood),var(--danger));transition:width .5s;}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px;}
+.stat-box{background:var(--ash);border:1px solid #444;padding:11px;text-align:center;}
+.sb-l{font-family:'Share Tech Mono',monospace;font-size:.64rem;color:#888;margin-bottom:2px;}
+.sb-v{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold);}
+.sb-s{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#666;margin-top:1px;}
+.ach{background:var(--ash);border:1px solid #444;border-left:3px solid var(--gold);padding:8px 11px;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.ach.locked{opacity:.35;border-left-color:#444;filter:grayscale(1);}
+.ach-icon{font-size:1.3rem;}.ach-name{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:2px;}.ach-desc{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#888;}
+/* RECRUIT */
+.recruit-card{background:var(--ash);border:1px solid #555;padding:9px;margin-bottom:7px;display:flex;align-items:center;gap:9px;}
+.ra{width:40px;height:40px;border-radius:50%;border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.ri-name{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:1px;}
+.ri-role{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#888;}
+.ri-stats{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#aaa;margin-top:1px;}
+/* DRUG MARKET */
+.drug-card{background:#0d1a0d;border:1px solid #2a4a2a;border-left:3px solid #3a8c3a;padding:10px;margin-bottom:8px;}
+.drug-name{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;color:#7fcc7f;}
+.drug-price{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:#aaa;margin-top:2px;display:flex;justify-content:space-between;}
+.drug-trend{font-family:'Share Tech Mono',monospace;font-size:.65rem;}
+.trend-up{color:#7fcc7f;}.trend-down{color:var(--danger);}.trend-flat{color:#aaa;}
+.drug-actions{display:flex;gap:5px;margin-top:6px;}
+.drug-actions .btn{flex:1;}
+/* LAUNDRY MINIGAME */
+.laundry-container{background:#0d0d0d;border:2px solid #333;padding:16px;margin-bottom:13px;}
+.laundry-title{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:4px;color:var(--gold);margin-bottom:10px;}
+.laundry-slots{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.laundry-slot{background:#1a1a1a;border:2px solid #444;width:70px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-family:'Share Tech Mono',monospace;font-size:.65rem;text-align:center;border-radius:4px;}
+.laundry-slot:hover{border-color:var(--gold);background:#222;}
+.laundry-slot.active{border-color:var(--safe);background:#0a200a;}
+.laundry-slot.locked-slot{opacity:.4;cursor:not-allowed;}
+.laundry-slot .slot-icon{font-size:1.5rem;margin-bottom:3px;}
+.laundry-slot .slot-name{font-size:.6rem;color:#aaa;}
+.laundry-slot .slot-rate{font-size:.68rem;color:var(--gold);}
+.laundry-info{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:#888;margin-bottom:8px;}
+/* NEWSPAPER */
+.newspaper{background:#f4efdd;color:#1a1a1a;padding:16px;font-family:'Special Elite',cursive;border:3px double #888;max-width:600px;margin:0 auto;}
+.newspaper-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;text-align:center;border-bottom:3px double #333;padding-bottom:6px;margin-bottom:10px;letter-spacing:6px;color:#1a1a1a;}
+.newspaper-date{text-align:center;font-size:.75rem;color:#555;margin-bottom:12px;font-family:'Share Tech Mono',monospace;}
+.newspaper-headline{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;border-bottom:1px solid #aaa;padding-bottom:6px;margin-bottom:8px;color:#1a1a1a;}
+.newspaper-story{font-size:.8rem;line-height:1.7;color:#2a2a2a;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #ccc;}
+.newspaper-small{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;color:#1a1a1a;margin-bottom:4px;}
+.newspaper-blurb{font-size:.72rem;color:#444;margin-bottom:10px;}
+/* TURF WAR */
+.turf-war-card{background:#1a0505;border:2px solid var(--blood);padding:11px;margin-bottom:9px;animation:turf-pulse 2s infinite;}
+@keyframes turf-pulse{0%,100%{border-color:var(--blood)}50%{border-color:var(--danger)}}
+.tw-title{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:3px;color:var(--danger);}
+.tw-info{font-family:'Share Tech Mono',monospace;font-size:.67rem;color:#aaa;margin-top:3px;}
+.tw-timer{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--danger);margin-top:5px;}
+/* FBI DOSSIER */
+.dossier{background:#001020;border:2px solid #3366aa;padding:14px;margin-bottom:10px;}
+.dossier-title{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:3px;color:#66aaff;border-bottom:1px solid #3366aa;padding-bottom:4px;margin-bottom:8px;}
+.dossier-line{font-family:'Share Tech Mono',monospace;font-size:.67rem;color:#aaa;margin-bottom:4px;display:flex;justify-content:space-between;}
+.dossier-val{color:#66aaff;}
+.classified{color:#ff4444;font-family:'Bebas Neue',sans-serif;letter-spacing:4px;font-size:.75rem;margin-top:6px;}
+/* ALERTS */
+.raid-alert{background:rgba(255,0,0,.12);border:2px solid var(--danger);padding:9px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:4px;color:var(--danger);animation:pulse-r 1s infinite;margin-bottom:9px;}
+@keyframes pulse-r{0%,100%{opacity:1}50%{opacity:.5}}
+.fbi-alert{background:rgba(0,30,80,.3);border:2px solid #3366aa;padding:9px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:3px;color:#66aaff;animation:pulse-b 1.5s infinite;margin-bottom:9px;}
+@keyframes pulse-b{0%,100%{opacity:1}50%{opacity:.6}}
+/* GAME OVER */
+.game-over{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:300;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:18px;}
+.game-over.active{display:flex;}
+.game-over h1{font-family:'Bebas Neue',sans-serif;font-size:3.8rem;letter-spacing:12px;color:var(--blood);text-shadow:0 0 40px rgba(139,0,0,.8);margin-bottom:9px;}
+.game-over p{font-size:.9rem;color:#aaa;margin-bottom:20px;max-width:480px;}
+.final-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px;max-width:420px;}
+.fs{background:var(--ash);border:1px solid #444;padding:8px;}
+.fs-l{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:#888;}
+.fs-v{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:var(--gold);}
+.notification{position:fixed;top:72px;right:16px;background:#111;border:2px solid var(--gold);padding:9px 16px;font-family:'Bebas Neue',sans-serif;letter-spacing:3px;font-size:.82rem;color:var(--gold);z-index:500;animation:sIn .4s ease,fOut .4s ease 2.6s forwards;pointer-events:none;}
+.notification.bad{border-color:var(--danger);color:var(--danger);}
+.notification.fbi-note{border-color:#66aaff;color:#66aaff;}
+@keyframes sIn{from{transform:translateX(120%)}to{transform:translateX(0)}}
+@keyframes fOut{to{opacity:0;transform:translateX(120%)}}
+/* XP bar */
+.xp-bar-bg{background:#111;height:4px;border-radius:2px;margin-top:2px;}
+.xp-bar{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--purple),#cc88ff);transition:width .5s;}
+/* Drug inventory badge */
+.inv-badge{display:inline-block;background:#0a1f0a;border:1px solid #2a4a2a;color:#7fcc7f;font-family:'Share Tech Mono',monospace;font-size:.65rem;padding:2px 6px;margin-left:6px;}
+/* choice buttons */
+.choices{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.choice-btn{background:#1a1a1a;border:1px solid #555;padding:8px 12px;font-family:'Special Elite',cursive;font-size:.82rem;color:var(--paper);cursor:pointer;text-align:left;transition:all .2s;}
+.choice-btn:hover{background:#2a2a2a;border-color:var(--gold);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>VICE HARBOR SYNDICATE</h1>
+  <div class="header-stats">
+    <div class="stat-pill">💰 $<span id="cash">50,000</span></div>
+    <div class="stat-pill">💊 <span id="dirty-cash">0</span> dirty</div>
+    <div class="stat-pill">🏛 <span id="territory">1</span>/10</div>
+    <div class="stat-pill">⚠️ <span id="heat-val">12</span>%</div>
+    <div class="stat-pill">📅 WK <span id="week">1</span></div>
+    <div class="stat-pill">💀 <span id="kills">0</span></div>
+    <div class="rep-badge" id="rep-badge">STREET THUG</div>
+    <div class="fbi-badge" id="fbi-badge">FBI TIER 0</div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('main')">🗺️ EMPIRE</div>
+  <div class="tab" onclick="switchTab('drugs')">💊 DRUG TRADE</div>
+  <div class="tab" onclick="switchTab('laundry')">🧺 LAUNDRY</div>
+  <div class="tab" onclick="switchTab('market')">🔫 MARKET</div>
+  <div class="tab" onclick="switchTab('contracts')">📋 CONTRACTS</div>
+  <div class="tab" onclick="switchTab('rivals')">⚔️ RIVALS</div>
+  <div class="tab" onclick="switchTab('newspaper')">📰 PRESS</div>
+  <div class="tab" onclick="switchTab('fbi')">🕵️ FBI FILE</div>
+  <div class="tab" onclick="switchTab('stats')">📊 STATS</div>
+</div>
+
+<!-- ===== MAIN TAB ===== -->
+<div id="tab-main" class="tab-content active">
+<div class="game-container">
+  <div class="left-panel">
+    <div class="panel-title">🔫 OPERATIONS</div>
+    <div id="ops-list"></div>
+    <hr class="section-divider">
+    <div class="panel-title">🏗️ UPGRADES</div>
+    <div id="upgrades-list"></div>
+  </div>
+  <div class="center-panel">
+    <div id="raid-alert-el"></div>
+    <div id="fbi-alert-el"></div>
+    <div id="turf-wars-el"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
+      <div class="panel-title" style="margin:0"> Vice Harbor</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#555">Click district to interact</div>
+    </div>
+    <div class="city-map" id="city-map"><div class="map-bg"></div></div>
+    <div class="panel-title" style="margin-bottom:6px;">📻 INTEL FEED</div>
+    <div class="event-log" id="event-log"></div>
+  </div>
+  <div class="right-panel">
+    <div class="panel-title">🌡️ HEAT</div>
+    <div class="heat-meter">
+      <div class="heat-label"><span>POLICE</span><span id="heat-pct">12%</span></div>
+      <div class="heat-bar-bg"><div class="heat-bar" id="heat-bar" style="width:12%"></div></div>
+      <div class="wanted-stars" id="wanted-stars">☆☆☆☆☆</div>
+    </div>
+    <div class="panel-title">🕵️ FBI THREAT</div>
+    <div class="fbi-meter">
+      <div class="fbi-label"><span>INVESTIGATION</span><span id="fbi-pct">0%</span></div>
+      <div class="fbi-bar-bg"><div class="fbi-bar" id="fbi-bar" style="width:0%"></div></div>
+      <div class="fbi-threat" id="fbi-threat-label">NO ACTIVE CASE</div>
+    </div>
+    <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>👥 CREW (<span id="crew-count">4</span>/<span id="crew-max">6</span>)</span>
+      <span style="font-size:.62rem;color:#888;cursor:pointer" onclick="switchTab('market')">+ HIRE</span>
+    </div>
+    <div id="crew-list"></div>
+    <hr class="section-divider">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.64rem;color:#888;margin-bottom:3px">INCOME: <span style="color:var(--gold)">$<span id="next-income">0</span>/wk</span></div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.64rem;color:#888;margin-bottom:3px">PAYROLL: <span style="color:var(--danger)">$<span id="payroll">0</span>/wk</span></div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.64rem;color:#888;margin-bottom:6px">DEFENSE: <span style="color:#5af"><span id="defense-rating">0</span></span> | NET DRUG: <span style="color:#7fcc7f">$<span id="drug-net">0</span></span></div>
+    <button class="turn-btn" onclick="endTurn()">⏭ END WEEK</button>
+    <div class="turn-counter">Week <span id="week2">1</span></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== DRUG TRADE TAB ===== -->
+<div id="tab-drugs" class="tab-content">
+  <div style="padding:16px;max-width:900px;margin:0 auto;">
+    <div class="panel-title" style="font-size:1.15rem;margin-bottom:6px;">💊 DRUG TRADE — Vice Harbor MARKET</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:#888;margin-bottom:14px;">Buy low, sell high. Prices fluctuate every week based on supply, busts, and demand. Dirty cash from drug sales must be laundered before you can spend it freely. Watch the trend arrows.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+      <div>
+        <div class="panel-title">💹 MARKET PRICES</div>
+        <div id="drug-market-list"></div>
+      </div>
+      <div>
+        <div class="panel-title">🎒 YOUR INVENTORY</div>
+        <div id="drug-inventory-list"></div>
+        <hr class="section-divider">
+        <div class="panel-title">📊 MARKET HISTORY</div>
+        <div id="drug-history" style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#888;line-height:1.8;max-height:180px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LAUNDRY TAB ===== -->
+<div id="tab-laundry" class="tab-content">
+  <div style="padding:16px;max-width:700px;margin:0 auto;">
+    <div class="panel-title" style="font-size:1.15rem;margin-bottom:6px;">🧺 MONEY LAUNDERING OPERATIONS</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:#888;margin-bottom:14px;">Drug sales and certain operations generate dirty cash that can't be spent freely — it shows up as <span style="color:#ffaa44">dirty money</span>. Route it through laundry fronts to convert it. Each front has a weekly capacity and conversion rate. Heat is generated by laundering activity.</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;background:var(--ash);border:1px solid #444;padding:10px;">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--gold)">DIRTY CASH</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:1.2rem;color:#ffaa44">$<span id="dirty-cash-big">0</span></div>
+      </div>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--gold)">LAUNDERED THIS WEEK</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:1.2rem;color:#7fcc7f">$<span id="laundered-this-week">0</span></div>
+      </div>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--gold)">WEEKLY CAPACITY</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:1.2rem;color:white">$<span id="laundry-capacity">0</span></div>
+      </div>
+    </div>
+    <div class="panel-title">🏪 FRONT BUSINESSES</div>
+    <div id="laundry-fronts-list"></div>
+    <hr class="section-divider">
+    <div class="panel-title">🏗️ UNLOCK NEW FRONTS</div>
+    <div id="laundry-unlock-list"></div>
+  </div>
+</div>
+
+<!-- ===== MARKET TAB ===== -->
+<div id="tab-market" class="tab-content">
+  <div style="padding:16px;max-width:920px;margin:0 auto;">
+    <div class="panel-title" style="font-size:1.15rem;margin-bottom:16px;">🔫 BLACK MARKET & RECRUITMENT</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div><div class="panel-title">🛒 CONTRABAND & GEAR</div><div id="market-list"></div></div>
+      <div><div class="panel-title">🧑‍🤝‍🧑 RECRUIT SPECIALISTS</div><div id="recruit-list"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONTRACTS TAB ===== -->
+<div id="tab-contracts" class="tab-content">
+  <div style="padding:16px;max-width:680px;margin:0 auto;">
+    <div class="panel-title" style="font-size:1.15rem;margin-bottom:5px;">📋 CONTRACT BOARD</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.68rem;color:#888;margin-bottom:16px;">Anonymous high-value jobs. Complete for big cash and reputation. Some contracts generate FBI attention.</div>
+    <div id="contracts-list"></div>
+  </div>
+</div>
+
+<!-- ===== RIVALS TAB ===== -->
+<div id="tab-rivals" class="tab-content">
+  <div style="padding:16px;max-width:680px;margin:0 auto;">
+    <div class="panel-title" style="font-size:1.15rem;margin-bottom:5px;">⚔️ RIVAL FACTIONS</div>
+    <div id="rivals-list"></div>
+    <hr class="section-divider">
+    <div class="panel-title">🕵️ INTELLIGENCE OPS</div>
+    <div id="intel-ops-list"></div>
+    <hr class="section-divider">
+    <div class="panel-title">⚔️ ACTIVE TURF WARS</div>
+    <div id="turf-wars-list"></div>
+  </div>
+</div>
+
+<!-- ===== NEWSPAPER TAB ===== -->
+<div id="tab-newspaper" class="tab-content">
+  <div style="padding:16px;max-width:640px;margin:0 auto;">
+    <div id="newspaper-content"></div>
+  </div>
+</div>
+
+<!-- ===== FBI FILE TAB ===== -->
+<div id="tab-fbi" class="tab-content">
+  <div style="padding:16px;max-width:680px;margin:0 auto;">
+    <div class="panel-title" style="font-size:1.15rem;margin-bottom:5px;color:#66aaff;border-color:#3366aa;">🕵️ FBI DOSSIER — CLASSIFIED</div>
+    <div id="fbi-content"></div>
+  </div>
+</div>
+
+<!-- ===== STATS TAB ===== -->
+<div id="tab-stats" class="tab-content">
+  <div style="padding:16px;max-width:900px;margin:0 auto;">
+    <div class="panel-title" style="font-size:1.15rem;margin-bottom:16px;">📊 EMPIRE STATISTICS</div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="panel-title">🏆 ACHIEVEMENTS</div>
+    <div id="achievements-list"></div>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+<div class="modal-overlay" id="op-modal">
+  <div class="modal">
+    <h2 id="modal-title">OPERATION</h2>
+    <p id="modal-desc"></p>
+    <div class="mstats">
+      <div class="mstat"><div class="mstat-l">COST</div><div class="mstat-v" id="modal-cost"></div></div>
+      <div class="mstat"><div class="mstat-l">REWARD</div><div class="mstat-v" id="modal-reward"></div></div>
+      <div class="mstat"><div class="mstat-l">RISK</div><div class="mstat-v" id="modal-risk"></div></div>
+      <div class="mstat"><div class="mstat-l">HEAT +</div><div class="mstat-v" id="modal-heat"></div></div>
+    </div>
+    <div id="modal-crew-bonus" style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#7fb8ff;margin-bottom:9px;"></div>
+    <div id="modal-fbi-warn" style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#66aaff;margin-bottom:9px;"></div>
+    <div class="mbtns"><button class="btn gold" onclick="closeModal()">ABORT</button><button class="btn" id="modal-confirm-btn" onclick="executeOp()">EXECUTE</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="district-modal">
+  <div class="modal">
+    <h2 id="d-modal-title">DISTRICT</h2>
+    <p id="d-modal-desc"></p>
+    <div class="mstats">
+      <div class="mstat"><div class="mstat-l">WEEKLY INCOME</div><div class="mstat-v" id="d-modal-income"></div></div>
+      <div class="mstat"><div class="mstat-l">TAKEOVER COST</div><div class="mstat-v" id="d-modal-cost"></div></div>
+      <div class="mstat"><div class="mstat-l">ENEMY STRENGTH</div><div class="mstat-v" id="d-modal-strength"></div></div>
+      <div class="mstat"><div class="mstat-l">STATUS</div><div class="mstat-v" id="d-modal-status"></div></div>
+    </div>
+    <div id="d-modal-extra" style="font-family:'Share Tech Mono',monospace;font-size:.67rem;color:#5af;margin-bottom:11px;"></div>
+    <div class="mbtns">
+      <button class="btn gold" onclick="closeDistrictModal()">CLOSE</button>
+      <button class="btn" id="d-modal-btn">TAKEOVER</button>
+      <button class="btn blue" id="d-modal-defend-btn" style="display:none">🛡️ FORTIFY ($10K)</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="contract-modal">
+  <div class="modal">
+    <h2 id="c-modal-title">CONTRACT</h2>
+    <p id="c-modal-desc"></p>
+    <div class="mstats">
+      <div class="mstat"><div class="mstat-l">REWARD</div><div class="mstat-v" id="c-modal-reward"></div></div>
+      <div class="mstat"><div class="mstat-l">REP BONUS</div><div class="mstat-v" id="c-modal-rep"></div></div>
+      <div class="mstat"><div class="mstat-l">RISK</div><div class="mstat-v" id="c-modal-risk"></div></div>
+      <div class="mstat"><div class="mstat-l">HEAT +</div><div class="mstat-v" id="c-modal-heat"></div></div>
+    </div>
+    <div id="c-modal-fbi" style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#66aaff;margin-bottom:9px;"></div>
+    <div id="c-modal-req" style="font-family:'Share Tech Mono',monospace;font-size:.67rem;margin-bottom:11px;"></div>
+    <div class="mbtns"><button class="btn gold" onclick="closeContractModal()">DECLINE</button><button class="btn" id="c-modal-btn" onclick="acceptContract()">ACCEPT JOB</button></div>
+  </div>
+</div>
+
+<!-- RANDOM EVENT MODAL -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <h2 id="ev-modal-title">⚡ EVENT</h2>
+    <p id="ev-modal-desc"></p>
+    <div id="ev-modal-choices" class="choices"></div>
+  </div>
+</div>
+
+<div class="game-over" id="game-over">
+  <h1 id="go-title">GAME OVER</h1>
+  <p id="go-msg"></p>
+  <div class="final-stats" id="final-stats"></div>
+  <button class="btn" style="max-width:200px;font-size:1rem;" onclick="restartGame()">RESTART</button>
+</div>
+
+<script>
+  
+  
+// ============================= STATE =============================
+let G = {};
+const REP_RANKS=[{min:0,name:'STREET THUG'},{min:100,name:'ENFORCER'},{min:300,name:'LIEUTENANT'},{min:600,name:'UNDERBOSS'},{min:1000,name:'CAPO'},{min:1500,name:'BOSS'},{min:2500,name:'GODFATHER'}];
+const FBI_TIERS=[
+  {min:0,name:'NO ACTIVE CASE',color:'#555'},
+  {min:15,name:'PERSONS OF INTEREST',color:'#66aaff'},
+  {min:35,name:'ACTIVE INVESTIGATION',color:'#4488ff'},
+  {min:55,name:'TASK FORCE FORMED',color:'#ff8800'},
+  {min:75,name:'FEDERAL INDICTMENT',color:'#ff4400'},
+  {min:90,name:'MOST WANTED',color:'#ff2222'},
+];
+
+function initState(){
+  G={
+    cash:50000, dirtyCash:0, heat:12, fbiHeat:0, week:1,
+    territory:0, kills:0, reputation:0, gameOver:false,
+    opsUsedThisWeek:[], totalCashEarned:50000, totalDirtyLaundered:0,
+    totalOpsRun:0, totalOpsSuccess:0, districtsTaken:0, contractsDone:0,
+    pendingRaid:false, pendingFBIRaid:false, launderedThisWeek:0,
+    turfWars:[], newspaperStories:[], fbiKnownCrimes:[],
+    bonuses:{riskReduction:0,heatReduction:0,weeklyBonus:0,raidResist:0,raidWarn:false,assassinBonus:false,drugBonus:false,laundryRate:0},
+    upgrades:{laundering:false,connections:false,arsenal:false,enforcer:false,safehouses:false,spyNetwork:false,ironShield:false,drugEmpire:false},
+
+    // Drug trade
+    drugs:[
+      {id:'weed',name:'CANNABIS',icon:'🌿',buyPrice:200,sellPrice:0,stock:0,trend:0,volatile:0.15,basePx:200,desc:'Low risk, steady demand.'},
+      {id:'coke',name:'COCAINE',icon:'❄️',buyPrice:1200,sellPrice:0,stock:0,trend:0,volatile:0.3,basePx:1200,desc:'High value, fluctuates wildly.'},
+      {id:'meth',name:'METHAMPHETAMINE',icon:'💎',buyPrice:800,sellPrice:0,stock:0,trend:0,volatile:0.25,basePx:800,desc:'Growing demand in the burbs.'},
+      {id:'heroin',name:'HEROIN',icon:'💉',buyPrice:2000,sellPrice:0,stock:0,trend:0,volatile:0.35,basePx:2000,desc:'Extreme risk, extreme profit.'},
+      {id:'pills',name:'PRESCRIPTION PILLS',icon:'💊',buyPrice:500,sellPrice:0,stock:0,trend:0,volatile:0.2,basePx:500,desc:'Cleaner operation. Lower heat.'},
+    ],
+    drugHistory:[],
+    drugDistrictBonus:0,
+
+    // Laundry
+    laundryFronts:[
+      {id:'carwash',name:'CAR WASH',icon:'🚗',capacity:10000,rate:0.85,active:true,owned:true,cost:0,heatPerK:0.5,desc:'Classic front. Low capacity, minimal heat.'},
+      {id:'restaurant',name:'ITALIAN RESTAURANT',icon:'🍝',capacity:25000,rate:0.80,active:false,owned:false,cost:20000,heatPerK:0.8,desc:'High capacity. Slightly more conspicuous.'},
+      {id:'casino_front',name:'CASINO FLOOR',icon:'🎰',capacity:50000,rate:0.75,active:false,owned:false,cost:45000,heatPerK:1.2,desc:'Huge throughput but generates heat fast.'},
+      {id:'construction',name:'CONSTRUCTION FIRM',icon:'🏗️',capacity:35000,rate:0.78,active:false,owned:false,cost:30000,heatPerK:0.9,desc:'Slow but legit-looking.'},
+      {id:'nightclub',name:'NIGHTCLUB',icon:'🎵',capacity:40000,rate:0.82,active:false,owned:false,cost:35000,heatPerK:1.0,desc:'Great cover. Popular with the crew too.'},
+    ],
+
+    districts:[
+      {id:'docks',name:'DOCKS',icon:'⚓',income:8000,cost:30000,strength:3,status:'neutral',defense:0,x:4,y:8,w:19,h:27,faction:null,desc:'Grimy waterfront. Smuggling routes. Drug bonus district.'},
+      {id:'downtown',name:'DOWNTOWN',icon:'🏢',income:15000,cost:60000,strength:5,status:'owned',defense:2,x:27,y:3,w:24,h:29,faction:null,desc:'The beating heart of the city. Your home turf.'},
+      {id:'casino',name:'CASINO ROW',icon:'🎰',income:22000,cost:90000,strength:7,status:'rival',defense:0,x:55,y:4,w:24,h:27,faction:'nitti',desc:'Neon halls and high rollers. Nitti Family territory.'},
+      {id:'chinatown',name:'CHINATOWN',icon:'🐉',income:9000,cost:35000,strength:4,status:'neutral',defense:0,x:3,y:40,w:20,h:26,faction:null,desc:'Dense alleys. Drug market demand is high here.'},
+      {id:'suburbs',name:'SUBURBS',icon:'🏠',income:6000,cost:20000,strength:2,status:'neutral',defense:0,x:26,y:37,w:19,h:22,faction:null,desc:'Quiet neighborhoods. Pill market.'},
+      {id:'port',name:'SOUTH PORT',icon:'🚢',income:18000,cost:75000,strength:6,status:'rival',defense:0,x:53,y:35,w:24,h:26,faction:'romero',desc:'Major shipping. Romero Cartel territory.'},
+      {id:'ghetto',name:'THE WIRE',icon:'🔫',income:7000,cost:25000,strength:3,status:'neutral',defense:0,x:5,y:71,w:22,h:21,faction:null,desc:'Loyal to cash. Meth demand is high here.'},
+      {id:'hospital',name:'HOSPITAL',icon:'🏥',income:12000,cost:45000,strength:4,status:'neutral',defense:0,x:26,y:63,w:20,h:24,faction:null,desc:'Control medicine. Heroin and pill supply.'},
+      {id:'uptown',name:'UPTOWN',icon:'💎',income:25000,cost:110000,strength:8,status:'rival',defense:0,x:60,y:65,w:22,h:25,faction:'nitti',desc:'Old money. Cocaine demand very high.'},
+      {id:'airport',name:'AIRPORT',icon:'✈️',income:30000,cost:130000,strength:9,status:'rival',defense:0,x:79,y:33,w:16,h:36,faction:'romero',desc:'International routes. The ultimate prize.'},
+    ],
+
+    crew:[
+      {id:'tommy',name:'TOMMY G.',role:'Enforcer',loyalty:85,skill:72,xp:0,level:1,status:'idle',emoji:'😤',specialty:'muscle',weeklyCost:2000,xpToNext:100},
+      {id:'vinnie',name:'VINNIE K.',role:'Consigliere',loyalty:92,skill:88,xp:0,level:1,status:'idle',emoji:'🧠',specialty:'intel',weeklyCost:3000,xpToNext:100},
+      {id:'rosa',name:'ROSA V.',role:'Hacker',loyalty:78,skill:80,xp:0,level:1,status:'idle',emoji:'💻',specialty:'tech',weeklyCost:2500,xpToNext:100},
+      {id:'sal',name:'BIG SAL',role:'Driver',loyalty:70,skill:65,xp:0,level:1,status:'idle',emoji:'🚗',specialty:'getaway',weeklyCost:1500,xpToNext:100},
+    ],
+
+    recruits:[
+      {id:'marco',name:'MARCO D.',role:'Assassin',loyalty:75,skill:90,xp:0,level:1,status:'idle',emoji:'🔪',specialty:'hitman',weeklyCost:4000,hireCost:20000,xpToNext:100},
+      {id:'chen',name:'CHEN LI',role:'Smuggler',loyalty:80,skill:75,xp:0,level:1,status:'idle',emoji:'📦',specialty:'smuggling',weeklyCost:2000,hireCost:12000,xpToNext:100},
+      {id:'angela',name:'ANGELA R.',role:'Lawyer',loyalty:88,skill:95,xp:0,level:1,status:'idle',emoji:'⚖️',specialty:'legal',weeklyCost:5000,hireCost:35000,xpToNext:100},
+      {id:'boris',name:'BORIS K.',role:'Bomb Tech',loyalty:65,skill:85,xp:0,level:1,status:'idle',emoji:'💣',specialty:'demo',weeklyCost:3500,hireCost:18000,xpToNext:100},
+      {id:'maya',name:'MAYA S.',role:'Spy',loyalty:70,skill:88,xp:0,level:1,status:'idle',emoji:'🕶️',specialty:'intel',weeklyCost:3000,hireCost:22000,xpToNext:100},
+      {id:'pete',name:'FAT PETE',role:'Bookie',loyalty:82,skill:70,xp:0,level:1,status:'idle',emoji:'🎲',specialty:'gambling',weeklyCost:2200,hireCost:14000,xpToNext:100},
+      {id:'lena',name:'LENA V.',role:'Chemist',loyalty:72,skill:92,xp:0,level:1,status:'idle',emoji:'⚗️',specialty:'chemistry',weeklyCost:4500,hireCost:28000,xpToNext:100},
+    ],
+
+    ops:[
+      {id:'extortion',name:'EXTORTION ROUND',cost:1000,reward:[5000,12000],risk:10,heat:6,fbiHeat:1,desc:'Collect protection from local businesses.',req:null,specialty:null,cat:'crime',dirty:false},
+      {id:'carjack',name:'CHOP SHOP RING',cost:3000,reward:[10000,22000],risk:20,heat:12,fbiHeat:2,desc:'Steal and strip luxury vehicles. Sal loves this.',req:null,specialty:'getaway',cat:'theft',dirty:false},
+      {id:'fix',name:'FIX THE FIGHT',cost:3000,reward:[15000,25000],risk:18,heat:10,fbiHeat:2,desc:'Bribe a contender to take a dive.',req:null,specialty:'intel',cat:'crime',dirty:false},
+      {id:'hack',name:'CORPORATE HACK',cost:4000,reward:[18000,35000],risk:22,heat:5,fbiHeat:4,desc:'Rosa hacks financial systems.',req:null,specialty:'tech',cat:'cyber',dirty:true},
+      {id:'arson',name:'ARSON FOR HIRE',cost:4000,reward:[15000,30000],risk:28,heat:22,fbiHeat:5,desc:'Torch a rival business. Boris knows his trade.',req:null,specialty:'demo',cat:'crime',dirty:false},
+      {id:'heist',name:'BANK HEIST',cost:5000,reward:[25000,45000],risk:35,heat:18,fbiHeat:8,desc:'Rob the First National. Tommy and Sal run muscle.',req:null,specialty:'muscle',cat:'crime',dirty:true},
+      {id:'kidnap',name:'RANSOM JOB',cost:6000,reward:[25000,60000],risk:48,heat:28,fbiHeat:12,desc:'Grab a wealthy target. Extremely risky.',req:null,specialty:'muscle',cat:'crime',dirty:true},
+      {id:'counterfeit',name:'COUNTERFEIT CASH',cost:7000,reward:[20000,45000],risk:30,heat:15,fbiHeat:6,desc:'Print funny money with Rosa\'s help.',req:null,specialty:'tech',cat:'fraud',dirty:true},
+      {id:'smuggling',name:'DRUG SMUGGLE',cost:8000,reward:[30000,55000],risk:38,heat:20,fbiHeat:7,desc:'Move product through the docks.',req:'docks',specialty:'smuggling',cat:'drug',dirty:true},
+      {id:'gambling',name:'UNDERGROUND CASINO',cost:2000,reward:[8000,20000],risk:14,heat:4,fbiHeat:2,desc:'Run illegal card games.',req:'casino',specialty:'gambling',cat:'gambling',dirty:true},
+      {id:'assassination',name:'HIT CONTRACT',cost:10000,reward:[40000,80000],risk:42,heat:32,fbiHeat:15,desc:'Accept a hit on a rival underboss.',req:null,specialty:'hitman',cat:'assassination',dirty:false},
+      {id:'wiretap',name:'POLICE WIRETAP',cost:5000,reward:[0,0],risk:15,heat:-15,fbiHeat:-5,desc:'Bribe a cop. Reduces heat AND FBI attention.',req:null,specialty:'legal',cat:'intel',dirty:false},
+      {id:'airport_run',name:'AIRPORT PRODUCT RUN',cost:12000,reward:[50000,90000],risk:45,heat:25,fbiHeat:14,desc:'International shipment through the airport.',req:'airport',specialty:'smuggling',cat:'drug',dirty:true},
+      {id:'protection',name:'PROTECTION RACKET',cost:2000,reward:[12000,28000],risk:22,heat:9,fbiHeat:3,desc:'Systematic shake-downs across neighborhoods.',req:null,specialty:'muscle',cat:'crime',dirty:false},
+      {id:'chemlab_op',name:'RUN THE CHEMLAB',cost:6000,reward:[22000,40000],risk:25,heat:14,fbiHeat:6,desc:'Lena cooks a batch. Major drug income.',req:null,specialty:'chemistry',cat:'drug',dirty:true},
+    ],
+
+    upgrades_def:[
+      {id:'laundering',name:'MONEY LAUNDROMAT',cost:25000,desc:'Heat gain -30%'},
+      {id:'connections',name:'POLICE CONNECTIONS',cost:40000,desc:'Heat -15/wk + Raid resist +20%'},
+      {id:'arsenal',name:'BLACK MARKET ARMS',cost:30000,desc:'Op risk -10%'},
+      {id:'enforcer',name:'HIRED MUSCLE',cost:20000,desc:'Takeover cost -20%'},
+      {id:'safehouses',name:'SAFEHOUSES',cost:35000,desc:'Crew heals faster'},
+      {id:'spyNetwork',name:'SPY NETWORK',cost:50000,desc:'Rival intel auto-revealed'},
+      {id:'ironShield',name:'IRON SHIELD',cost:45000,desc:'Districts get +3 defense'},
+      {id:'drugEmpire',name:'DRUG EMPIRE',cost:60000,desc:'Drug op rewards +50%'},
+    ],
+
+    market:[
+      {id:'ak47',name:'AK-47 CACHE',icon:'🔫',cost:15000,owned:false,effect:'Ops risk -15%',apply:()=>{G.bonuses.riskReduction+=15;}},
+      {id:'burner',name:'BURNER PHONES',icon:'📱',cost:8000,owned:false,effect:'Heat gain -20%',apply:()=>{G.bonuses.heatReduction+=20;}},
+      {id:'armored',name:'ARMORED CAR',icon:'🚘',cost:22000,owned:false,effect:'Risk -10%, Heat -10%',apply:()=>{G.bonuses.riskReduction+=10;G.bonuses.heatReduction+=10;}},
+      {id:'forged',name:'FORGED IDs',icon:'🪪',cost:12000,owned:false,effect:'Raid resist +25%',apply:()=>{G.bonuses.raidResist+=25;}},
+      {id:'scanner',name:'POLICE SCANNER',icon:'📡',cost:10000,owned:false,effect:'Raid warning early',apply:()=>{G.bonuses.raidWarn=true;}},
+      {id:'vault',name:'VAULT SAFE',icon:'🏦',cost:30000,owned:false,effect:'+$5K bonus income/week',apply:()=>{G.bonuses.weeklyBonus+=5000;}},
+      {id:'sniper',name:'SNIPER RIFLE',icon:'🎯',cost:20000,owned:false,effect:'Assassination risk -20%',apply:()=>{G.bonuses.assassinBonus=true;}},
+      {id:'chemlab_gear',name:'CHEMISTRY LAB',icon:'⚗️',cost:35000,owned:false,effect:'Drug rewards +40%',apply:()=>{G.bonuses.drugBonus=true;}},
+      {id:'submarine',name:'SMUGGLER SUB',icon:'🐟',cost:50000,owned:false,effect:'+$8K bonus/week, drug risk -10%',apply:()=>{G.bonuses.weeklyBonus+=8000;G.bonuses.riskReduction+=5;}},
+      {id:'drone',name:'SURVEILLANCE DRONE',icon:'🛸',cost:18000,owned:false,effect:'All risk -5%, see rival plans',apply:()=>{G.bonuses.riskReduction+=5;}},
+      {id:'crypto',name:'CRYPTO WALLET',icon:'₿',cost:25000,owned:false,effect:'Dirty cash launders 10% faster',apply:()=>{G.bonuses.laundryRate+=10;}},
+      {id:'lawyer_retainer',name:'LAWYER ON RETAINER',icon:'⚖️',cost:40000,owned:false,effect:'FBI heat -10/wk + arrested crew freed faster',apply:()=>{}},
+    ],
+
+    rivals:[
+      {id:'nitti',name:'NITTI FAMILY',icon:'🎩',strength:80,aggression:0.4,desc:'Old-world Italian mob. Methodical and ruthless.'},
+      {id:'romero',name:'ROMERO CARTEL',icon:'🌵',strength:75,aggression:0.5,desc:'South American cartel. Violent and unpredictable.'},
+      {id:'triad',name:'IRON TRIAD',icon:'🐉',strength:60,aggression:0.3,desc:'Chinese criminal network. Prefer subtlety.'},
+    ],
+
+    contracts:[
+      {id:'c1',name:'THE GHOST JOB',reward:50000,repBonus:150,risk:40,heat:20,fbiHeat:10,desc:'A rival lawyer needs eliminating before trial.',req:{territory:3},done:false},
+      {id:'c2',name:'CLEAN THE BOOKS',reward:30000,repBonus:80,risk:15,heat:5,fbiHeat:5,desc:'An accountant needs records cleaned. Digitally.',req:{crew:'tech'},done:false},
+      {id:'c3',name:'MISSING SHIPMENT',reward:70000,repBonus:200,risk:50,heat:30,fbiHeat:12,desc:'Find $2M in missing product. Keep 10%.',req:{territory:4},done:false},
+      {id:'c4',name:'POLITICAL DONATION',reward:25000,repBonus:60,risk:10,heat:8,fbiHeat:8,desc:'Deliver a briefcase to City Hall. No receipt.',req:null,done:false},
+      {id:'c5',name:'WAREHOUSE RAID',reward:45000,repBonus:120,risk:35,heat:18,fbiHeat:8,desc:'Hit a rival stash house. Keep what you find.',req:{kills:3},done:false},
+      {id:'c6',name:'THE SENATOR',reward:90000,repBonus:300,risk:55,heat:40,fbiHeat:25,desc:'A senator knows too much. Make it look natural.',req:{reputation:600},done:false},
+      {id:'c7',name:'DRUG PIPELINE',reward:80000,repBonus:250,risk:45,heat:25,fbiHeat:15,desc:'Establish a drug route. First run is yours.',req:{district:'docks'},done:false},
+      {id:'c8',name:'JAILBREAK',reward:60000,repBonus:180,risk:48,heat:35,fbiHeat:18,desc:'Spring a high-value prisoner from county lockup.',req:{crew:'muscle'},done:false},
+      {id:'c9',name:'CORPORATE ESPIONAGE',reward:40000,repBonus:100,risk:25,heat:10,fbiHeat:7,desc:'Steal trade secrets from a Fortune 500.',req:{crew:'tech'},done:false},
+      {id:'c10',name:'THE MOLE',reward:55000,repBonus:160,risk:35,heat:15,fbiHeat:10,desc:'Expose a federal informant inside your org.',req:{territory:5},done:false},
+      {id:'c11',name:'OFFSHORE ACCOUNTS',reward:100000,repBonus:350,risk:30,heat:8,fbiHeat:20,desc:'Set up a chain of offshore shell companies.',req:{totalCash:200000},done:false},
+      {id:'c12',name:'CITY COUNCIL BUYOUT',reward:120000,repBonus:400,risk:20,heat:10,fbiHeat:30,desc:'Purchase the city council. Permanent heat reduction.',req:{reputation:1000},done:false,onComplete:()=>{G.heat=Math.max(0,G.heat-20);}},
+    ],
+
+    intelOps:[
+      {id:'sur_nitti',name:'SURVEIL NITTI',cost:8000,targetRival:'nitti',type:'surveil',done:false},
+      {id:'sur_romero',name:'SURVEIL ROMERO',cost:8000,targetRival:'romero',type:'surveil',done:false},
+      {id:'bribe_nitti',name:'BRIBE NITTI SOLDIER',cost:15000,targetRival:'nitti',type:'weaken',amount:20,done:false},
+      {id:'bribe_romero',name:'BRIBE ROMERO SOLDIER',cost:15000,targetRival:'romero',type:'weaken',amount:20,done:false},
+      {id:'sab_triad',name:'SABOTAGE TRIAD',cost:12000,targetRival:'triad',type:'weaken',amount:25,done:false},
+      {id:'turncoat',name:'TURN A RIVAL SOLDIER',cost:30000,targetRival:null,type:'flip',done:false},
+      {id:'plant_evidence',name:'PLANT FBI EVIDENCE',cost:20000,targetRival:null,type:'fbi_deflect',done:false},
+    ],
+
+    achievements:[
+      {id:'first_blood',name:'FIRST BLOOD',desc:'Complete first op',icon:'🔫',unlocked:false,check:()=>G.totalOpsSuccess>=1},
+      {id:'five_ops',name:'FIVE JOBS',desc:'Complete 5 ops',icon:'💼',unlocked:false,check:()=>G.totalOpsSuccess>=5},
+      {id:'twenty_ops',name:'VETERAN CRIMINAL',desc:'Complete 20 ops',icon:'🏅',unlocked:false,check:()=>G.totalOpsSuccess>=20},
+      {id:'millionaire',name:'MILLIONAIRE',desc:'Earn $1M total',icon:'💰',unlocked:false,check:()=>G.totalCashEarned>=1000000},
+      {id:'ten_mill',name:'TEN MILLION',desc:'Earn $10M total',icon:'🤑',unlocked:false,check:()=>G.totalCashEarned>=10000000},
+      {id:'empire',name:'EMPIRE BUILDER',desc:'Control 5 districts',icon:'🏛️',unlocked:false,check:()=>G.territory>=5},
+      {id:'cold_blooded',name:'COLD BLOODED',desc:'5 assassinations',icon:'💀',unlocked:false,check:()=>G.kills>=5},
+      {id:'godfather',name:'THE GODFATHER',desc:'Reach Godfather rank',icon:'🎩',unlocked:false,check:()=>G.reputation>=2500},
+      {id:'survivor',name:'SURVIVOR',desc:'Survive 20 weeks',icon:'⏳',unlocked:false,check:()=>G.week>=20},
+      {id:'contractor',name:'CONTRACTOR',desc:'Complete 4 contracts',icon:'📋',unlocked:false,check:()=>G.contractsDone>=4},
+      {id:'full_crew',name:'FULL CREW',desc:'Have 6 crew members',icon:'👥',unlocked:false,check:()=>G.crew.length>=6},
+      {id:'fortress',name:'FORTRESS',desc:'Fully fortify a district',icon:'🛡️',unlocked:false,check:()=>G.districts.some(d=>d.defense>=5)},
+      {id:'drug_lord',name:'DRUG LORD',desc:'Sell $500K in drugs',icon:'💊',unlocked:false,check:()=>G.totalDirtyLaundered>=500000},
+      {id:'clean_money',name:'LEGIT BUSINESSMAN',desc:'Launder $200K',icon:'🧺',unlocked:false,check:()=>G.totalDirtyLaundered>=200000},
+      {id:'max_level',name:'LET THEM COOK',desc:'Level up any crew to level 5',icon:'⭐',unlocked:false,check:()=>G.crew.some(c=>c.level>=5)},
+      {id:'ghost',name:'GHOST',desc:'Keep FBI heat below 20 for 10 weeks',icon:'👻',unlocked:false,lowFBIStreak:0,check:()=>false},
+    ],
+  };
+  G.territory=G.districts.filter(d=>d.status==='owned').length;
+  // Initialize drug sell prices
+  G.drugs.forEach(d=>{d.sellPrice=Math.round(d.buyPrice*1.4);});
+}
+
+// ===================== TABS =====================
+function switchTab(name){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const tabs=['main','drugs','laundry','market','contracts','rivals','newspaper','fbi','stats'];
+  const idx=tabs.indexOf(name);
+  if(idx>=0) document.querySelectorAll('.tab')[idx].classList.add('active');
+  if(name==='drugs') renderDrugMarket();
+  if(name==='laundry') renderLaundry();
+  if(name==='market'){renderMarket();renderRecruits();}
+  if(name==='contracts') renderContracts();
+  if(name==='rivals') renderRivals();
+  if(name==='newspaper') renderNewspaper();
+  if(name==='fbi') renderFBI();
+  if(name==='stats') renderStats();
+}
+
+// ===================== MAIN RENDER =====================
+function render(){renderDistricts();renderOps();renderCrew();renderUpgrades();updateHeader();renderAlerts();}
+
+function updateHeader(){
+  document.getElementById('cash').textContent=G.cash.toLocaleString();
+  document.getElementById('dirty-cash').textContent=G.dirtyCash.toLocaleString();
+  document.getElementById('territory').textContent=G.territory;
+  document.getElementById('heat-val').textContent=Math.round(G.heat);
+  document.getElementById('week').textContent=G.week;
+  document.getElementById('week2').textContent=G.week;
+  document.getElementById('kills').textContent=G.kills;
+  document.getElementById('heat-pct').textContent=Math.round(G.heat)+'%';
+  const bar=document.getElementById('heat-bar');
+  bar.style.width=Math.min(G.heat,100)+'%';
+  if(G.heat<30) bar.style.background='linear-gradient(90deg,#3a8c3a,#7fcc7f)';
+  else if(G.heat<60) bar.style.background='linear-gradient(90deg,#ffaa44,#ff7700)';
+  else bar.style.background='linear-gradient(90deg,var(--blood),var(--danger))';
+  const stars=Math.min(5,Math.floor(G.heat/20));
+  document.getElementById('wanted-stars').textContent='★'.repeat(stars)+'☆'.repeat(5-stars);
+  document.getElementById('fbi-pct').textContent=Math.round(G.fbiHeat)+'%';
+  document.getElementById('fbi-bar').style.width=Math.min(G.fbiHeat,100)+'%';
+  const tier=FBI_TIERS.slice().reverse().find(t=>G.fbiHeat>=t.min)||FBI_TIERS[0];
+  document.getElementById('fbi-threat-label').textContent=tier.name;
+  document.getElementById('fbi-threat-label').style.color=tier.color;
+  document.getElementById('fbi-badge').textContent='FBI: '+tier.name.split(' ')[0];
+  const rank=REP_RANKS.slice().reverse().find(r=>G.reputation>=r.min);
+  document.getElementById('rep-badge').textContent=rank?rank.name:'STREET THUG';
+  const income=G.districts.filter(d=>d.status==='owned').reduce((s,d)=>s+d.income,0)+G.bonuses.weeklyBonus;
+  document.getElementById('next-income').textContent=income.toLocaleString();
+  const payroll=G.crew.reduce((s,c)=>s+c.weeklyCost,0);
+  document.getElementById('payroll').textContent=payroll.toLocaleString();
+  document.getElementById('defense-rating').textContent=G.districts.filter(d=>d.status==='owned').reduce((s,d)=>s+d.defense,0);
+  // drug net - this week's potential from selling inventory at current prices
+  const drugNet=G.drugs.reduce((s,d)=>s+d.stock*d.sellPrice,0);
+  document.getElementById('drug-net').textContent=drugNet.toLocaleString();
+  document.getElementById('crew-count').textContent=G.crew.length;
+  document.getElementById('dirty-cash-big')&&(document.getElementById('dirty-cash-big').textContent=G.dirtyCash.toLocaleString());
+  document.getElementById('laundered-this-week')&&(document.getElementById('laundered-this-week').textContent=G.launderedThisWeek.toLocaleString());
+  const cap=G.laundryFronts.filter(f=>f.owned&&f.active).reduce((s,f)=>s+f.capacity,0);
+  document.getElementById('laundry-capacity')&&(document.getElementById('laundry-capacity').textContent=cap.toLocaleString());
+}
+
+function renderAlerts(){
+  const raidEl=document.getElementById('raid-alert-el');
+  const fbiEl=document.getElementById('fbi-alert-el');
+  const twEl=document.getElementById('turf-wars-el');
+  raidEl.innerHTML=G.pendingRaid&&G.bonuses.raidWarn?`<div class="raid-alert">⚠️ POLICE SCANNER — RAID INCOMING NEXT WEEK ⚠️</div>`:'';
+  fbiEl.innerHTML=G.pendingFBIRaid?`<div class="fbi-alert">🕵️ FBI TASK FORCE MOBILIZING — TAKE ACTION NOW 🕵️</div>`:'';
+  const activeTw=G.turfWars.filter(w=>w.weeksLeft>0);
+  twEl.innerHTML=activeTw.length?activeTw.map(w=>`<div class="turf-war-card"><div class="tw-title">⚔️ TURF WAR: ${w.districtName}</div><div class="tw-info">${w.rivalName} is attacking. Defend or lose the district.</div><div class="tw-timer">⏱ ${w.weeksLeft} WEEK${w.weeksLeft>1?'S':''} TO RESPOND</div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn sm" onclick="resolveTurfWar('${w.id}','fight')">⚔️ FIGHT BACK ($${(5000*w.strength).toLocaleString()})</button><button class="btn sm gold" onclick="resolveTurfWar('${w.id}','pay')">💰 PAY OFF ($${(20000*w.strength).toLocaleString()})</button><button class="btn sm" style="background:#333" onclick="resolveTurfWar('${w.id}','abandon')">🏃 ABANDON</button></div></div>`).join(''):'';
+}
+
+function renderDistricts(){
+  const map=document.getElementById('city-map');
+  map.querySelectorAll('.district').forEach(e=>e.remove());
+  G.districts.forEach(d=>{
+    const el=document.createElement('div');
+    el.className=`district ${d.status}`;
+    el.style.cssText=`left:${d.x}%;top:${d.y}%;width:${d.w}%;height:${d.h}%;`;
+    const defStr=d.status==='owned'&&d.defense>0?`<div class="d-def">🛡${d.defense}</div>`:'';
+    el.innerHTML=`<div class="d-icon">${d.icon}</div><div class="d-name">${d.name}</div><div class="d-income">$${(d.income/1000).toFixed(0)}K</div>${defStr}`;
+    el.onclick=()=>openDistrictModal(d.id);
+    map.appendChild(el);
+  });
+}
+
+function renderOps(){
+  const el=document.getElementById('ops-list');
+  el.innerHTML='';
+  G.ops.forEach(op=>{
+    const locked=op.req&&!G.districts.find(d=>d.id===op.req&&d.status==='owned');
+    const used=G.opsUsedThisWeek.includes(op.id);
+    const card=document.createElement('div');
+    card.className=`op-card ${locked?'locked':used?'used':''}`;
+    let risk=Math.max(0,op.risk-G.bonuses.riskReduction-(G.upgrades.arsenal?10:0)-(G.bonuses.assassinBonus&&op.cat==='assassination'?20:0));
+    const cb=getCrewBonusForOp(op);
+    const isHeat=op.id==='wiretap';
+    const dirtyTag=op.dirty?'<span style="color:#ffaa44">💸dirty</span>':'';
+    card.innerHTML=`<div class="op-name">${op.name}${used?' <span style="color:#555;font-size:.62rem">[DONE]</span>':''}</div>
+      <div class="op-stats">
+        ${isHeat?'<span style="color:#5af">REDUCE HEAT</span>':`<span class="op-reward">$${(op.reward[0]/1000).toFixed(0)}K–${(op.reward[1]/1000).toFixed(0)}K</span>`}
+        <span class="op-risk">${risk}%</span>
+        ${dirtyTag}
+        ${cb?'<span style="color:#7fb8ff">+crew</span>':''}
+      </div>
+      ${locked?`<div style="font-size:.58rem;color:#888;font-family:'Share Tech Mono',monospace;margin-top:2px">REQ: ${op.req.toUpperCase()}</div>`:''}`;
+    if(!locked&&!used) card.onclick=()=>openOpModal(op.id);
+    el.appendChild(card);
+  });
+}
+
+function renderCrew(){
+  const el=document.getElementById('crew-list');
+  el.innerHTML='';
+  G.crew.forEach(c=>{
+    const sc=c.status==='idle'?'s-idle':c.status==='active'?'s-active':c.status==='imprisoned'?'s-imprisoned':'s-injured';
+    const xpPct=Math.round((c.xp/c.xpToNext)*100);
+    el.innerHTML+=`<div class="crew-member">
+      <div class="crew-avatar" style="${c.status==='injured'?'border-color:var(--danger)':c.status==='imprisoned'?'border-color:#cc88ff':''}">${c.emoji}</div>
+      <div class="crew-info">
+        <div class="crew-name">${c.name}<span class="crew-lv">Lv${c.level}</span></div>
+        <div class="crew-role">${c.role} — $${(c.weeklyCost/1000).toFixed(1)}K/wk</div>
+        <div class="cbar-bg"><div class="cbar cbar-l" style="width:${c.loyalty}%"></div></div>
+        <div class="cbar-bg"><div class="cbar cbar-s" style="width:${c.skill}%"></div></div>
+        <div class="cbar-bg"><div class="cbar cbar-x" style="width:${xpPct}%"></div></div>
+      </div>
+      <div class="crew-status ${sc}">${c.status.toUpperCase()}</div>
+      <button class="fire-btn" onclick="fireCrew('${c.id}')">✕</button>
+    </div>`;
+  });
+}
+
+function renderUpgrades(){
+  const el=document.getElementById('upgrades-list');
+  el.innerHTML='';
+  G.upgrades_def.forEach(u=>{
+    const owned=G.upgrades[u.id];
+    const card=document.createElement('div');
+    card.className=`op-card ${owned?'locked':''}`;
+    card.innerHTML=`<div class="op-name">${owned?'✓ ':''}${u.name}</div>
+      <div class="op-stats"><span style="color:#aaa">${u.desc}</span><span style="color:var(--gold)">${owned?'OWNED':'$'+u.cost.toLocaleString()}</span></div>`;
+    if(!owned) card.onclick=()=>buyUpgrade(u.id);
+    el.appendChild(card);
+  });
+}
+
+// ===================== DRUG TRADE =====================
+function renderDrugMarket(){
+  const el=document.getElementById('drug-market-list');
+  el.innerHTML='';
+  G.drugs.forEach(d=>{
+    const trendIcon=d.trend>0?'<span class="trend-up">▲ '+(d.trend*100).toFixed(0)+'%</span>':d.trend<0?'<span class="trend-down">▼ '+(Math.abs(d.trend)*100).toFixed(0)+'%</span>':'<span class="trend-flat">— FLAT</span>';
+    const canBuy=G.cash>=d.buyPrice*10;
+    const canSell=d.stock>0;
+    el.innerHTML+=`<div class="drug-card">
+      <div class="drug-name">${d.icon} ${d.name} <span class="inv-badge">${d.stock} units</span></div>
+      <div class="drug-price"><span>BUY: $${d.buyPrice.toLocaleString()}/u</span><span>SELL: $${d.sellPrice.toLocaleString()}/u</span><span>${trendIcon}</span></div>
+      <div class="drug-actions">
+        <button class="btn sm green" onclick="buyDrug('${d.id}',10)" ${G.cash<d.buyPrice*10?'disabled':''}>BUY 10u ($${(d.buyPrice*10).toLocaleString()})</button>
+        <button class="btn sm green" onclick="buyDrug('${d.id}',50)" ${G.cash<d.buyPrice*50?'disabled':''}>BUY 50u</button>
+        <button class="btn sm" onclick="sellDrug('${d.id}','all')" ${!canSell?'disabled':''}>SELL ALL (${d.stock}u)</button>
+        <button class="btn sm gold" onclick="sellDrug('${d.id}',10)" ${d.stock<10?'disabled':''}>SELL 10u</button>
+      </div>
+    </div>`;
+  });
+  const invEl=document.getElementById('drug-inventory-list');
+  const total=G.drugs.reduce((s,d)=>s+d.stock,0);
+  const totalValue=G.drugs.reduce((s,d)=>s+d.stock*d.sellPrice,0);
+  invEl.innerHTML=`<div style="background:var(--ash);border:1px solid #333;padding:10px;margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:.7rem">
+    <div style="color:#aaa">TOTAL UNITS: <span style="color:white">${total}</span></div>
+    <div style="color:#aaa">PORTFOLIO VALUE: <span style="color:var(--gold)">$${totalValue.toLocaleString()}</span></div>
+    <div style="color:#aaa">DIRTY CASH: <span style="color:#ffaa44">$${G.dirtyCash.toLocaleString()}</span></div>
+    <div style="color:#888;margin-top:4px;font-size:.62rem">Drug profits are dirty cash. Use the Laundry tab to convert.</div>
+  </div>`;
+  G.drugs.forEach(d=>{
+    if(d.stock>0){
+      const pnl=(d.sellPrice-d.buyPrice)/d.buyPrice*100;
+      invEl.innerHTML+=`<div style="background:#0a1a0a;border:1px solid #2a4a2a;padding:8px;margin-bottom:5px;font-family:'Share Tech Mono',monospace;font-size:.68rem">
+        <span style="color:#7fcc7f">${d.icon} ${d.name}</span>: ${d.stock}u 
+        <span style="color:${pnl>=0?'#7fcc7f':'var(--danger)'}"> (${pnl>=0?'+':''}${pnl.toFixed(0)}% margin)</span>
+      </div>`;
+    }
+  });
+  const histEl=document.getElementById('drug-history');
+  histEl.innerHTML=G.drugHistory.slice(-20).reverse().map(h=>`<div style="color:${h.type==='price_up'?'#7fcc7f':h.type==='price_down'?'var(--danger)':'#aaa'}">[W${h.week}] ${h.msg}</div>`).join('');
+}
+
+function buyDrug(id,qty){
+  const d=G.drugs.find(x=>x.id===id);
+  if(!d) return;
+  const total=d.buyPrice*qty;
+  if(G.cash<total){notify('NOT ENOUGH CASH',true);return;}
+  G.cash-=total;d.stock+=qty;
+  G.heat=Math.min(100,G.heat+qty*0.05);
+  G.fbiHeat=Math.min(100,G.fbiHeat+qty*0.03);
+  log(`💊 Bought ${qty}x ${d.name} for $${total.toLocaleString()}`,'success');
+  updateHeader();renderDrugMarket();
+}
+
+function sellDrug(id,qty){
+  const d=G.drugs.find(x=>x.id===id);
+  if(!d||d.stock===0) return;
+  const sellQty=qty==='all'?d.stock:Math.min(qty,d.stock);
+  const revenue=d.sellPrice*sellQty;
+  d.stock-=sellQty;
+  G.dirtyCash+=revenue;
+  G.totalCashEarned+=revenue;
+  log(`💰 Sold ${sellQty}x ${d.name} — $${revenue.toLocaleString()} (DIRTY CASH)`,'success');
+  addNewspaper(`DRUG BUST NARROWLY AVOIDED`,`Police report suspicious activity in multiple neighborhoods. Authorities believe an organized drug distribution network is operating in Vice Harbor.`,'minor');
+  updateHeader();renderDrugMarket();checkAchievements();
+}
+
+function fluctuateDrugPrices(){
+  G.drugs.forEach(d=>{
+    // trend momentum
+    const momentum=d.trend*0.3;
+    const shock=(Math.random()-0.5)*d.volatile*2;
+    d.trend=Math.max(-0.4,Math.min(0.4,momentum+shock));
+    const oldBuy=d.buyPrice;
+    d.buyPrice=Math.max(50,Math.round(d.basePx*(1+d.trend)));
+    d.sellPrice=Math.max(d.buyPrice+20,Math.round(d.buyPrice*(1.3+Math.random()*0.2)));
+    const change=((d.buyPrice-oldBuy)/oldBuy*100).toFixed(0);
+    if(Math.abs(change)>10){
+      G.drugHistory.push({week:G.week,type:d.trend>0?'price_up':'price_down',msg:`${d.icon} ${d.name}: ${change>0?'+':''}${change}% (now $${d.buyPrice})`});
+    }
+  });
+  // occasionally bust the market
+  if(Math.random()<0.1){
+    const d=G.drugs[Math.floor(Math.random()*G.drugs.length)];
+    d.buyPrice=Math.round(d.buyPrice*0.6);d.sellPrice=Math.round(d.sellPrice*0.65);
+    G.drugHistory.push({week:G.week,type:'bust',msg:`🚔 BUST: ${d.name} prices crashed (police crackdown)`});
+    G.fbiHeat=Math.min(100,G.fbiHeat+5);
+    log(`🚔 MARKET BUST: ${d.name} prices crashed!`,'warn');
+  }
+}
+
+// ===================== LAUNDRY =====================
+function renderLaundry(){
+  updateHeader();
+  const el=document.getElementById('laundry-fronts-list');
+  el.innerHTML='';
+  G.laundryFronts.filter(f=>f.owned).forEach(f=>{
+    el.innerHTML+=`<div class="laundry-container">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:1.5rem">${f.icon}</span>
+        <div>
+          <div class="laundry-title" style="margin:0">${f.name}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#888">${f.desc}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:var(--gold)">Cap: $${f.capacity.toLocaleString()}/wk</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#aaa">Rate: ${Math.round(f.rate*100+(G.bonuses.laundryRate||0))}¢ per $1</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:#888">Heat/K: ${f.heatPerK}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn sm green" onclick="launderMoney('${f.id}',5000)">LAUNDER $5K</button>
+        <button class="btn sm green" onclick="launderMoney('${f.id}',20000)">LAUNDER $20K</button>
+        <button class="btn sm green" onclick="launderMoney('${f.id}','max')">LAUNDER MAX</button>
+      </div>
+    </div>`;
+  });
+  const unlockEl=document.getElementById('laundry-unlock-list');
+  unlockEl.innerHTML='';
+  G.laundryFronts.filter(f=>!f.owned).forEach(f=>{
+    unlockEl.innerHTML+=`<div class="market-item">
+      <div><div class="mi-name">${f.icon} ${f.name}</div><div class="mi-desc">${f.desc} | Cap: $${f.capacity.toLocaleString()}/wk | Rate: ${Math.round(f.rate*100)}¢ on $1</div></div>
+      <div><div class="mi-price">$${f.cost.toLocaleString()}</div><button class="btn sm" onclick="buyLaundryFront('${f.id}')" ${G.cash<f.cost?'disabled':''}>ACQUIRE</button></div>
+    </div>`;
+  });
+}
+
+function launderMoney(frontId,amount){
+  const front=G.laundryFronts.find(f=>f.id===frontId);
+  if(!front||!front.owned) return;
+  if(G.dirtyCash<=0){notify('NO DIRTY CASH',true);return;}
+  const maxAmount=Math.min(amount==='max'?G.dirtyCash:amount, G.dirtyCash, front.capacity);
+  if(maxAmount<=0) return;
+  const rate=front.rate+(G.bonuses.laundryRate||0)/100;
+  const cleanCash=Math.round(maxAmount*rate);
+  const heatGain=Math.round(maxAmount/1000*front.heatPerK);
+  G.dirtyCash-=maxAmount;G.cash+=cleanCash;G.launderedThisWeek+=maxAmount;
+  G.totalDirtyLaundered+=maxAmount;
+  G.heat=Math.min(100,G.heat+heatGain);
+  G.fbiHeat=Math.min(100,G.fbiHeat+Math.round(heatGain*0.4));
+  log(`🧺 LAUNDERED $${maxAmount.toLocaleString()} → $${cleanCash.toLocaleString()} clean cash`,'success');
+  updateHeader();renderLaundry();checkAchievements();
+}
+
+function buyLaundryFront(id){
+  const f=G.laundryFronts.find(x=>x.id===id);
+  if(!f||f.owned) return;
+  if(G.cash<f.cost){log('❌ Not enough cash','fail');return;}
+  G.cash-=f.cost;f.owned=true;f.active=true;
+  log(`🏪 ${f.name} acquired as a laundry front`,'success');
+  addNewspaper('NEW BUSINESS OPENS IN VICE HARBOR',`A new ${f.name.toLowerCase()} recently opened, drawing some scrutiny from local authorities curious about the owner's background.`,'minor');
+  updateHeader();renderLaundry();
+}
+
+// ===================== FBI SYSTEM =====================
+function renderFBI(){
+  const tier=FBI_TIERS.slice().reverse().find(t=>G.fbiHeat>=t.min)||FBI_TIERS[0];
+  const el=document.getElementById('fbi-content');
+  const known=G.fbiKnownCrimes.slice(-10).reverse();
+  el.innerHTML=`
+    <div class="dossier">
+      <div class="dossier-title">📁 SUBJECT FILE — CLASSIFIED</div>
+      <div class="dossier-line"><span>THREAT LEVEL</span><span class="dossier-val" style="color:${tier.color}">${tier.name}</span></div>
+      <div class="dossier-line"><span>INVESTIGATION PROGRESS</span><span class="dossier-val">${Math.round(G.fbiHeat)}%</span></div>
+      <div class="dossier-line"><span>KNOWN ASSOCIATES</span><span class="dossier-val">${G.crew.length} identified</span></div>
+      <div class="dossier-line"><span>DISTRICTS SUSPECTED</span><span class="dossier-val">${G.territory}</span></div>
+      <div class="dossier-line"><span>CONFIRMED OPERATIONS</span><span class="dossier-val">${G.fbiKnownCrimes.length}</span></div>
+      <div class="dossier-line"><span>ESTIMATED NET WORTH</span><span class="dossier-val">$${G.totalCashEarned.toLocaleString()}</span></div>
+      <div class="classified">⛔ FOR LAW ENFORCEMENT EYES ONLY ⛔</div>
+    </div>
+    <div style="margin-top:14px;">
+      <div class="panel-title" style="color:#66aaff;border-color:#3366aa;">📋 KNOWN CRIMES</div>
+      ${known.length?known.map(c=>`<div style="background:#001020;border-left:2px solid #3366aa;padding:6px 10px;margin-bottom:5px;font-family:'Share Tech Mono',monospace;font-size:.67rem;color:#aaa">[W${c.week}] ${c.crime}</div>`).join(''):'<div style="font-family:\'Share Tech Mono\',monospace;font-size:.7rem;color:#555">NO CONFIRMED CRIMES ON FILE</div>'}
+    </div>
+    <div style="margin-top:14px;">
+      <div class="panel-title" style="color:#66aaff;border-color:#3366aa;">🛡️ COUNTERMEASURES</div>
+      <div class="op-card" onclick="buyCounterintelligence()" style="${G.cash<15000?'opacity:.5;cursor:not-allowed':''}">
+        <div class="op-name">PLANT MISINFORMATION ($15K)</div>
+        <div class="op-stats"><span style="color:#aaa">Confuse FBI investigators. FBI heat -15</span><span style="color:var(--gold)">$15,000</span></div>
+      </div>
+      <div class="op-card" onclick="buyCounterFBIRaid()" style="${G.cash<30000?'opacity:.5;cursor:not-allowed':''}">
+        <div class="op-name">DESTROY EVIDENCE ($30K)</div>
+        <div class="op-stats"><span style="color:#aaa">Shred documents and wipe servers. FBI heat -25</span><span style="color:var(--gold)">$30,000</span></div>
+      </div>
+      <div class="op-card" onclick="bribeJudge()" style="${G.cash<50000?'opacity:.5;cursor:not-allowed':''}">
+        <div class="op-name">BRIBE THE JUDGE ($50K)</div>
+        <div class="op-stats"><span style="color:#aaa">Buy the judge. FBI heat -40, heat -20. Risk: high.</span><span style="color:var(--gold)">$50,000</span></div>
+      </div>
+    </div>`;
+}
+
+function buyCounterintelligence(){
+  if(G.cash<15000) return;
+  G.cash-=15000;G.fbiHeat=Math.max(0,G.fbiHeat-15);
+  log(`🕵️ Misinformation planted — FBI heat -15`,'fbi');notify('FBI HEAT -15','fbi-note');
+  updateHeader();renderFBI();
+}
+function buyCounterFBIRaid(){
+  if(G.cash<30000) return;
+  G.cash-=30000;G.fbiHeat=Math.max(0,G.fbiHeat-25);
+  G.pendingFBIRaid=false;
+  log(`🗂️ Evidence destroyed — FBI heat -25`,'fbi');notify('EVIDENCE DESTROYED');
+  updateHeader();renderFBI();renderAlerts();
+}
+function bribeJudge(){
+  if(G.cash<50000) return;
+  G.cash-=50000;
+  if(Math.random()>0.3){
+    G.fbiHeat=Math.max(0,G.fbiHeat-40);G.heat=Math.max(0,G.heat-20);
+    log(`⚖️ Judge BOUGHT — FBI heat -40, Police heat -20`,'fbi');notify('JUDGE BOUGHT');
+    addNewspaper('JUDGE RECUSES HIMSELF FROM ORGANIZED CRIME CASE','A federal judge in Vice Harbor has suddenly recused himself from a high-profile organized crime case, citing "personal reasons." Legal observers are baffled.','minor');
+  } else {
+    G.fbiHeat=Math.min(100,G.fbiHeat+20);
+    log(`⚖️ Bribe REJECTED — FBI heat +20 (judge reported it!)`,'fail');notify('BRIBE FAILED',true);
+  }
+  updateHeader();renderFBI();
+}
+
+// ===================== NEWSPAPER =====================
+function addNewspaper(headline,story,severity){
+  G.newspaperStories.push({week:G.week,headline,story,severity});
+  if(G.newspaperStories.length>20) G.newspaperStories.shift();
+}
+function renderNewspaper(){
+  const el=document.getElementById('newspaper-content');
+  const stories=G.newspaperStories.slice().reverse();
+  if(!stories.length){
+    el.innerHTML=`<div class="newspaper"><div class="newspaper-title">THE VICE HARBOR COURIER</div><div class="newspaper-date">Week ${G.week}</div><p style="color:#555;text-align:center;padding:20px;">No notable stories yet. Keep operating.</p></div>`;
+    return;
+  }
+  const main=stories[0];
+  const rest=stories.slice(1,6);
+  el.innerHTML=`<div class="newspaper">
+    <div class="newspaper-title">THE VICE HARBOR COURIER</div>
+    <div class="newspaper-date">Week ${G.week} — "All The News That's Fit To Bury"</div>
+    <div class="newspaper-headline">${main.headline}</div>
+    <div class="newspaper-story">${main.story}</div>
+    ${rest.map(s=>`<div class="newspaper-small">${s.headline}</div><div class="newspaper-blurb">${s.story}</div>`).join('')}
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#888;margin-top:10px;text-align:center">— END OF EDITION —</div>
+  </div>`;
+}
+
+// ===================== TURF WARS =====================
+function createTurfWar(district,rival){
+  const existing=G.turfWars.find(w=>w.districtId===district.id&&w.weeksLeft>0);
+  if(existing) return;
+  G.turfWars.push({
+    id:'tw_'+Date.now(),districtId:district.id,districtName:district.name,
+    rivalName:rival.name,rivalId:rival.id,strength:rival.strength/100*3+1,
+    weeksLeft:2
+  });
+  log(`⚔️ TURF WAR DECLARED: ${rival.name} is moving on ${district.name}!`,'warn');
+  notify(`TURF WAR: ${district.name}!`,true);
+}
+function resolveTurfWar(id,choice){
+  const war=G.turfWars.find(w=>w.id===id);
+  if(!war) return;
+  const d=G.districts.find(x=>x.id===war.districtId);
+  if(choice==='fight'){
+    const cost=Math.round(5000*war.strength);
+    if(G.cash<cost){notify('NOT ENOUGH CASH',true);return;}
+    G.cash-=cost;
+    if(Math.random()*100>30+war.strength*10){
+      log(`⚔️ YOU WON the turf war for ${war.districtName}!`,'success');
+      addNewspaper('GANG VIOLENCE ERUPTS IN '+war.districtName.toUpperCase(),`A violent confrontation between rival criminal organizations left several wounded near ${war.districtName}. Police are investigating.`,'major');
+      const rival=G.rivals.find(r=>r.id===war.rivalId);
+      if(rival) rival.strength=Math.max(10,rival.strength-15);
+    } else {
+      if(d) {d.status='rival';d.faction=war.rivalId;if(d.status!=='rival') G.territory--;}
+      log(`💢 TURF WAR LOST — ${war.districtName} falls to ${war.rivalName}`,'fail');
+      G.territory=G.districts.filter(x=>x.status==='owned').length;
+    }
+  } else if(choice==='pay'){
+    const cost=Math.round(20000*war.strength);
+    if(G.cash<cost){notify('NOT ENOUGH CASH',true);return;}
+    G.cash-=cost;
+    log(`💰 Paid off ${war.rivalName} — turf war averted`,'info');
+  } else {
+    if(d&&d.status==='owned'){d.status='neutral';d.faction=null;G.territory--;}
+    log(`🏃 Abandoned ${war.districtName} to ${war.rivalName}`,'warn');
+  }
+  war.weeksLeft=0;
+  updateHeader();renderDistricts();renderAlerts();renderTurfWarsList();
+}
+function renderTurfWarsList(){
+  const el=document.getElementById('turf-wars-list');
+  if(!el) return;
+  const active=G.turfWars.filter(w=>w.weeksLeft>0);
+  el.innerHTML=active.length?active.map(w=>`<div class="rival-card">
+    <div class="rival-name">⚔️ ${w.districtName} — ${w.rivalName}</div>
+    <div class="rival-info">${w.weeksLeft} week(s) remaining</div>
+    <div style="display:flex;gap:5px;margin-top:5px">
+      <button class="btn sm" onclick="resolveTurfWar('${w.id}','fight')">⚔️ FIGHT</button>
+      <button class="btn sm gold" onclick="resolveTurfWar('${w.id}','pay')">💰 PAY OFF</button>
+      <button class="btn sm" style="background:#333" onclick="resolveTurfWar('${w.id}','abandon')">ABANDON</button>
+    </div>
+  </div>`).join(''):'<div style="font-family:\'Share Tech Mono\',monospace;font-size:.7rem;color:#555">No active turf wars.</div>';
+}
+
+// ===================== OPERATIONS =====================
+let pendingOp=null;
+function getCrewBonusForOp(op){if(!op.specialty) return null;return G.crew.find(c=>c.specialty===op.specialty&&c.status==='idle')||null;}
+function openOpModal(id){
+  const op=G.ops.find(o=>o.id===id);
+  pendingOp=op;
+  document.getElementById('modal-title').textContent=op.name;
+  document.getElementById('modal-desc').textContent=op.desc;
+  document.getElementById('modal-cost').textContent='$'+op.cost.toLocaleString();
+  const isHeat=op.id==='wiretap';
+  document.getElementById('modal-reward').textContent=isHeat?'HEAT -15':'$'+(op.reward[0]/1000).toFixed(0)+'K–'+(op.reward[1]/1000).toFixed(0)+'K';
+  let risk=Math.max(0,op.risk-G.bonuses.riskReduction-(G.upgrades.arsenal?10:0)-(G.bonuses.assassinBonus&&op.cat==='assassination'?20:0));
+  const cb=getCrewBonusForOp(op);if(cb) risk=Math.max(0,risk-Math.round(cb.skill/10)-cb.level*2);
+  document.getElementById('modal-risk').textContent=risk+'%';
+  let hg=op.heat;if(G.upgrades.laundering)hg=Math.round(hg*.7);hg=Math.round(hg*(1-G.bonuses.heatReduction/100));
+  document.getElementById('modal-heat').textContent=isHeat?'-15':'+'+hg;
+  document.getElementById('modal-crew-bonus').textContent=cb?`💪 ${cb.name} (Lv${cb.level}) assists — risk reduced, reward +15%`:'';
+  const fbiWarn=op.fbiHeat>8?`⚠️ High-profile op — FBI attention +${op.fbiHeat}`:'';
+  document.getElementById('modal-fbi-warn').textContent=fbiWarn;
+  document.getElementById('modal-confirm-btn').disabled=G.cash<op.cost;
+  document.getElementById('op-modal').classList.add('active');
+}
+function closeModal(){document.getElementById('op-modal').classList.remove('active');pendingOp=null;}
+
+function executeOp(){
+  if(!pendingOp) return;
+  const op=pendingOp;closeModal();
+  if(G.cash<op.cost){log('❌ Not enough cash!','fail');return;}
+  G.cash-=op.cost;G.totalOpsRun++;G.opsUsedThisWeek.push(op.id);
+  const isHeat=op.id==='wiretap';
+  if(isHeat){G.heat=Math.max(0,G.heat-15);G.fbiHeat=Math.max(0,G.fbiHeat-5);log(`👮 WIRETAP: Heat -15, FBI -5`,'success');updateHeader();renderOps();return;}
+  let risk=Math.max(2,op.risk-G.bonuses.riskReduction-(G.upgrades.arsenal?10:0)-(G.bonuses.assassinBonus&&op.cat==='assassination'?20:0));
+  const cb=getCrewBonusForOp(op);
+  if(cb){risk=Math.max(0,risk-Math.round(cb.skill/10)-cb.level*2);cb.status='active';giveCrewXP(cb,30);}
+  let hg=op.heat;if(G.upgrades.laundering)hg=Math.round(hg*.7);hg=Math.round(hg*(1-G.bonuses.heatReduction/100));
+  G.heat=Math.min(100,G.heat+hg);
+  G.fbiHeat=Math.min(100,G.fbiHeat+op.fbiHeat);
+  const roll=Math.random()*100;
+  if(roll>risk){
+    let r0=op.reward[0],r1=op.reward[1];
+    if((G.bonuses.drugBonus||G.upgrades.drugEmpire)&&op.cat==='drug'){r0=Math.round(r0*1.5);r1=Math.round(r1*1.5);}
+    if(cb){r0=Math.round(r0*1.15);r1=Math.round(r1*1.15);}
+    const payout=Math.round(r0+Math.random()*(r1-r0));
+    if(op.dirty){G.dirtyCash+=payout;}else{G.cash+=payout;}
+    G.totalCashEarned+=payout;G.totalOpsSuccess++;
+    G.reputation+=Math.round(payout/1000);
+    if(op.cat==='assassination') G.kills++;
+    G.fbiKnownCrimes.push({week:G.week,crime:`${op.name} — estimated take $${payout.toLocaleString()}`});
+    log(`✅ ${op.name} — $${payout.toLocaleString()}${op.dirty?' (DIRTY)':''}`,'success');
+    notify('+$'+payout.toLocaleString()+(op.dirty?' DIRTY':''));
+    // newspaper
+    if(op.cat==='assassination'){addNewspaper('UNDERWORLD FIGURE FOUND DEAD',`A known criminal associate was found dead in an apparent hit. Investigators suspect organized crime involvement.`,'major');}
+    else if(op.cat==='crime'&&payout>30000){addNewspaper('MAJOR CRIME WAVE HITS VICE HARBOR',`Police report an uptick in organized criminal activity. Several businesses have been targeted in what appears to be a coordinated operation.`,'minor');}
+    checkAchievements();
+  } else {
+    log(`💥 ${op.name} — FAILED. Extra heat.`,'fail');
+    G.heat=Math.min(100,G.heat+Math.round(hg*.5));
+    G.fbiHeat=Math.min(100,G.fbiHeat+Math.round(op.fbiHeat*.5));
+    if(Math.random()>.45){
+      const elig=G.crew.filter(c=>c.status!=='injured'&&c.status!=='imprisoned');
+      if(elig.length){const c=elig[Math.floor(Math.random()*elig.length)];c.status=Math.random()>.7?'imprisoned':'injured';c.loyalty=Math.max(10,c.loyalty-12);log(`🚑 ${c.name} is ${c.status==='imprisoned'?'arrested':'injured'}`,'warn');}
+    }
+    addNewspaper('POLICE FOIL CRIMINAL OPERATION',`Law enforcement successfully disrupted what authorities describe as a significant criminal enterprise operating in Vice Harbor. Investigations are ongoing.`,'minor');
+  }
+  updateHeader();renderCrew();renderOps();checkGameOver();
+}
+
+// ===================== CREW XP / LEVELING =====================
+function giveCrewXP(c,amount){
+  if(!c||c.status==='imprisoned') return;
+  c.xp+=amount;
+  while(c.xp>=c.xpToNext){
+    c.xp-=c.xpToNext;c.level++;
+    c.xpToNext=Math.round(c.xpToNext*1.5);
+    c.skill=Math.min(100,c.skill+5);c.loyalty=Math.min(100,c.loyalty+3);
+    c.weeklyCost=Math.round(c.weeklyCost*1.1);
+    log(`⭐ ${c.name} LEVELED UP to Level ${c.level}! Skill +5, Loyalty +3`,'event');
+    notify(`⭐ ${c.name} LVL ${c.level}!`);
+    checkAchievements();
+  }
+}
+
+// ===================== DISTRICTS =====================
+let pendingDistrict=null;
+function openDistrictModal(id){
+  const d=G.districts.find(x=>x.id===id);pendingDistrict=d;
+  document.getElementById('d-modal-title').textContent=d.icon+' '+d.name;
+  document.getElementById('d-modal-desc').textContent=d.desc;
+  document.getElementById('d-modal-income').textContent='$'+d.income.toLocaleString();
+  let cost=d.cost;if(G.upgrades.enforcer)cost=Math.round(cost*.8);
+  document.getElementById('d-modal-cost').textContent='$'+cost.toLocaleString();
+  document.getElementById('d-modal-strength').textContent=d.strength+'/10';
+  document.getElementById('d-modal-status').textContent=d.status.toUpperCase()+(d.faction?` (${d.faction.toUpperCase()})` :'');
+  document.getElementById('d-modal-extra').textContent=d.status==='owned'?`Defense: ${d.defense}/5 — Fortify ($10K each) to resist attacks`:d.status==='rival'?`Success chance: ~${Math.max(15,60-d.strength*3)}%`:'~88% success chance';
+  const btn=document.getElementById('d-modal-btn');
+  const defBtn=document.getElementById('d-modal-defend-btn');
+  btn.onclick=takeoverDistrict;defBtn.onclick=defendDistrict;
+  if(d.status==='owned'){
+    btn.textContent='✓ YOURS';btn.disabled=true;
+    defBtn.style.display='block';defBtn.disabled=G.cash<10000||d.defense>=5;
+    defBtn.textContent=d.defense>=5?'🛡️ MAXED':'🛡️ FORTIFY ($10K) — '+d.defense+'/5';
+  } else {
+    btn.textContent=d.status==='rival'?'⚔️ HOSTILE TAKEOVER':'🤝 TAKE CONTROL';
+    btn.disabled=G.cash<cost;defBtn.style.display='none';
+  }
+  document.getElementById('district-modal').classList.add('active');
+}
+function closeDistrictModal(){document.getElementById('district-modal').classList.remove('active');pendingDistrict=null;}
+function takeoverDistrict(){
+  if(!pendingDistrict) return;const d=pendingDistrict;
+  let cost=d.cost;if(G.upgrades.enforcer)cost=Math.round(cost*.8);
+  if(G.cash<cost){log('❌ Not enough cash!','fail');closeDistrictModal();return;}
+  G.cash-=cost;
+  const chance=d.status==='rival'?Math.max(15,60-d.strength*3):88;
+  if(Math.random()*100<chance){
+    d.status='owned';G.territory++;G.districtsTaken++;
+    G.reputation+=d.strength*20;G.fbiHeat=Math.min(100,G.fbiHeat+d.strength*2);
+    G.heat=Math.min(100,G.heat+d.strength*3);
+    if(d.faction){const rv=G.rivals.find(r=>r.id===d.faction);if(rv)rv.strength=Math.max(10,rv.strength-15);}
+    d.faction=null;
+    log(`🏴 ${d.name} YOURS — +$${d.income.toLocaleString()}/wk`,'success');notify(d.icon+' '+d.name+' TAKEN!');
+    addNewspaper('POWER SHIFT IN '+d.name.toUpperCase(),`Residents report a sudden change in who controls the streets of ${d.name}. Local businesses are keeping their heads down.`,'minor');
+    checkAchievements();
+  } else {
+    log(`💢 TAKEOVER at ${d.name} FAILED`,'fail');
+    G.heat=Math.min(100,G.heat+d.strength*4);
+    const c=G.crew.find(x=>x.status==='idle');if(c){c.status='injured';log(`🚑 ${c.name} injured in assault`,'warn');}
+  }
+  closeDistrictModal();updateHeader();renderDistricts();renderCrew();checkGameOver();
+}
+function defendDistrict(){
+  if(!pendingDistrict||pendingDistrict.status!=='owned') return;
+  const d=pendingDistrict;
+  if(G.cash<10000||d.defense>=5) return;
+  G.cash-=10000;d.defense++;
+  log(`🛡️ ${d.name} FORTIFIED — Defense ${d.defense}/5`,'success');
+  closeDistrictModal();updateHeader();renderDistricts();checkAchievements();
+}
+
+// ===================== UPGRADES/MARKET/CREW =====================
+function buyUpgrade(id){
+  const u=G.upgrades_def.find(x=>x.id===id);
+  if(!u||G.upgrades[id]) return;
+  if(G.cash<u.cost){log('❌ Can\'t afford '+u.name,'fail');return;}
+  G.cash-=u.cost;G.upgrades[id]=true;
+  if(id==='ironShield') G.districts.filter(d=>d.status==='owned').forEach(d=>d.defense=Math.min(5,d.defense+3));
+  log(`🔧 UPGRADE: ${u.name}`,'success');updateHeader();renderUpgrades();renderDistricts();
+}
+function buyMarketItem(id){
+  const item=G.market.find(m=>m.id===id);
+  if(!item||item.owned) return;
+  if(G.cash<item.cost){log('❌ Not enough cash!','fail');return;}
+  G.cash-=item.cost;item.owned=true;item.apply();
+  log(`🛒 PURCHASED: ${item.name}`,'success');updateHeader();renderMarket();
+}
+function renderMarket(){
+  const el=document.getElementById('market-list');el.innerHTML='';
+  G.market.forEach(item=>{
+    const div=document.createElement('div');div.className=`market-item ${item.owned?'owned':''}`;
+    div.innerHTML=`<div><div class="mi-name">${item.icon} ${item.name}</div><div class="mi-desc">${item.effect}</div></div>
+      <div style="text-align:right"><div class="mi-price">${item.owned?'✓':'$'+item.cost.toLocaleString()}</div>
+      ${!item.owned?`<button class="btn sm" onclick="buyMarketItem('${item.id}')" ${G.cash<item.cost?'disabled':''}>BUY</button>`:''}</div>`;
+    el.appendChild(div);
+  });
+}
+function renderRecruits(){
+  const el=document.getElementById('recruit-list');el.innerHTML='';
+  const hired=G.crew.map(c=>c.id);const full=G.crew.length>=6;
+  G.recruits.forEach(r=>{
+    const isHired=hired.includes(r.id);const div=document.createElement('div');div.className=`recruit-card ${isHired?'locked':''}`;
+    div.innerHTML=`<div class="ra">${r.emoji}</div>
+      <div style="flex:1"><div class="ri-name">${r.name}</div><div class="ri-role">${r.role} — ${r.specialty}</div><div class="ri-stats">Skill ${r.skill} | $${(r.weeklyCost/1000).toFixed(1)}K/wk</div></div>
+      <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:var(--gold)">${isHired?'HIRED':'$'+r.hireCost.toLocaleString()}</div>
+      ${!isHired?`<button class="btn sm" onclick="hireCrew('${r.id}')" ${G.cash<r.hireCost||full?'disabled':''}>HIRE</button>`:''}</div>`;
+    el.appendChild(div);
+  });
+}
+function hireCrew(id){
+  if(G.crew.length>=6){notify('CREW FULL',true);return;}
+  const r=G.recruits.find(x=>x.id===id);if(!r||G.cash<r.hireCost) return;
+  G.cash-=r.hireCost;G.crew.push({...r,status:'idle'});
+  log(`🤝 ${r.name} HIRED`,'success');updateHeader();renderCrew();renderRecruits();checkAchievements();
+}
+function fireCrew(id){
+  const idx=G.crew.findIndex(c=>c.id===id);if(idx<0) return;
+  const c=G.crew[idx];G.crew.splice(idx,1);
+  log(`👋 ${c.name} let go`,'info');updateHeader();renderCrew();
+}
+
+// ===================== CONTRACTS =====================
+let pendingContract=null;
+function checkContractReq(c){
+  if(!c.req) return true;
+  if(c.req.territory&&G.territory<c.req.territory) return false;
+  if(c.req.kills&&G.kills<c.req.kills) return false;
+  if(c.req.reputation&&G.reputation<c.req.reputation) return false;
+  if(c.req.district&&!G.districts.find(d=>d.id===c.req.district&&d.status==='owned')) return false;
+  if(c.req.crew&&!G.crew.find(cr=>cr.specialty===c.req.crew&&cr.status==='idle')) return false;
+  if(c.req.totalCash&&G.totalCashEarned<c.req.totalCash) return false;
+  return true;
+}
+function getContractReqText(c){
+  if(!c.req) return '';
+  if(c.req.territory) return `Need ${c.req.territory} districts (have ${G.territory})`;
+  if(c.req.kills) return `Need ${c.req.kills} kills (have ${G.kills})`;
+  if(c.req.reputation) return `Need ${c.req.reputation} rep (have ${G.reputation})`;
+  if(c.req.district) return `Need ${c.req.district.toUpperCase()} district`;
+  if(c.req.crew) return `Need a ${c.req.crew} specialist`;
+  if(c.req.totalCash) return `Need $${c.req.totalCash.toLocaleString()} total cash earned`;
+  return 'Requirements not met';
+}
+function renderContracts(){
+  const el=document.getElementById('contracts-list');el.innerHTML='';
+  G.contracts.forEach(c=>{
+    const div=document.createElement('div');div.className=`contract-card ${c.done?'done':''}`;
+    const canAccept=!c.done&&checkContractReq(c);
+    div.innerHTML=`<div class="cc-name">${c.done?'✓ ':''}${c.name}</div>
+      <div class="cc-reward">$${c.reward.toLocaleString()} + ${c.repBonus} REP | RISK ${c.risk}% | +${c.fbiHeat} FBI</div>
+      <div class="cc-req">${c.desc}</div>
+      ${!c.done?`<div style="font-size:.6rem;color:${canAccept?'#7fcc7f':'#ff8888'};font-family:'Share Tech Mono',monospace;margin-top:2px">${canAccept?'✅ READY':'❌ '+getContractReqText(c)}</div>`:''}`;
+    if(!c.done) div.onclick=()=>openContractModal(c.id);
+    el.appendChild(div);
+  });
+}
+function openContractModal(id){
+  const c=G.contracts.find(x=>x.id===id);pendingContract=c;
+  document.getElementById('c-modal-title').textContent=c.name;
+  document.getElementById('c-modal-desc').textContent=c.desc;
+  document.getElementById('c-modal-reward').textContent='$'+c.reward.toLocaleString();
+  document.getElementById('c-modal-rep').textContent='+'+c.repBonus;
+  document.getElementById('c-modal-risk').textContent=c.risk+'%';
+  document.getElementById('c-modal-heat').textContent='+'+c.heat;
+  document.getElementById('c-modal-fbi').textContent=c.fbiHeat>10?`⚠️ HIGH-PROFILE: FBI attention +${c.fbiHeat}`:`FBI attention +${c.fbiHeat}`;
+  const can=checkContractReq(c);
+  document.getElementById('c-modal-req').textContent=can?'✅ All requirements met':'❌ '+getContractReqText(c);
+  document.getElementById('c-modal-req').style.color=can?'#7fcc7f':'#ff8888';
+  document.getElementById('c-modal-btn').disabled=!can;
+  document.getElementById('contract-modal').classList.add('active');
+}
+function closeContractModal(){document.getElementById('contract-modal').classList.remove('active');pendingContract=null;}
+function acceptContract(){
+  if(!pendingContract) return;const c=pendingContract;closeContractModal();
+  G.heat=Math.min(100,G.heat+c.heat);G.fbiHeat=Math.min(100,G.fbiHeat+c.fbiHeat);
+  if(Math.random()*100>c.risk){
+    G.cash+=c.reward;G.totalCashEarned+=c.reward;G.reputation+=c.repBonus;
+    if(c.id==='c6'||c.id==='c1') G.kills++;
+    if(c.onComplete) c.onComplete();
+    c.done=true;G.contractsDone++;
+    log(`📋 "${c.name}" COMPLETE — $${c.reward.toLocaleString()} + ${c.repBonus} REP`,'event');
+    notify('CONTRACT DONE +$'+c.reward.toLocaleString());
+    G.fbiKnownCrimes.push({week:G.week,crime:`CONTRACT: ${c.name}`});
+    addNewspaper(c.name.toUpperCase()+' OPERATION SUCCESSFUL',`Intelligence sources confirm a major criminal operation concluded this week in Vice Harbor. Authorities are tight-lipped about details.`,'major');
+    checkAchievements();
+  } else {
+    log(`📋 "${c.name}" FAILED — went sideways`,'fail');
+    G.fbiHeat=Math.min(100,G.fbiHeat+c.fbiHeat*0.5);
+  }
+  updateHeader();renderContracts();checkGameOver();
+}
+
+// ===================== RIVALS =====================
+function renderRivals(){
+  const el=document.getElementById('rivals-list');el.innerHTML='';
+  G.rivals.forEach(r=>{
+    const ds=G.districts.filter(d=>d.faction===r.id&&d.status==='rival').map(d=>d.name).join(', ')||'None';
+    el.innerHTML+=`<div class="rival-card">
+      <div class="rival-name">${r.icon} ${r.name}</div>
+      <div class="rival-info">${r.desc}</div>
+      <div class="rival-info" style="display:flex;justify-content:space-between;margin-top:2px"><span>STR: ${r.strength}/100</span><span>DISTRICTS: ${ds}</span></div>
+      <div class="rival-bar-bg"><div class="rival-bar" style="width:${r.strength}%"></div></div>
+    </div>`;
+  });
+  const opsEl=document.getElementById('intel-ops-list');opsEl.innerHTML='';
+  G.intelOps.forEach(op=>{
+    const card=document.createElement('div');card.className=`op-card ${op.done?'locked':''}`;
+    card.innerHTML=`<div class="op-name">${op.done?'✓ ':''}${op.name}</div>
+      <div class="op-stats"><span style="color:#aaa">${op.type}</span><span style="color:var(--gold)">${op.done?'DONE':'$'+op.cost.toLocaleString()}</span></div>`;
+    if(!op.done) card.onclick=()=>runIntelOp(op.id);
+    opsEl.appendChild(card);
+  });
+  renderTurfWarsList();
+}
+function runIntelOp(id){
+  const op=G.intelOps.find(o=>o.id===id);if(!op||op.done) return;
+  if(G.cash<op.cost){log('❌ Not enough cash','fail');return;}
+  G.cash-=op.cost;op.done=true;
+  if(op.type==='weaken'){
+    const r=G.rivals.find(x=>x.id===op.targetRival);
+    if(r){r.strength=Math.max(10,r.strength-op.amount);log(`🕵️ ${r.name} weakened — strength ${r.strength}`,'success');}
+  } else if(op.type==='flip'){
+    const weakest=G.rivals.slice().sort((a,b)=>a.strength-b.strength)[0];
+    const td=G.districts.find(d=>d.faction===weakest.id&&d.status==='rival');
+    if(td){td.status='neutral';td.faction=null;log(`🔄 TURNCOAT: ${weakest.name} lost ${td.name}!`,'event');renderDistricts();}
+  } else if(op.type==='fbi_deflect'){
+    G.fbiHeat=Math.max(0,G.fbiHeat-20);
+    log(`🕵️ EVIDENCE PLANTED — FBI heat shifted to rival gang. -20 FBI heat`,'fbi');
+    addNewspaper('RIVAL GANG TARGETED IN FBI SWEEP',`Federal agents raided several locations believed to be connected to a rival criminal organization. Sources say the investigation was prompted by an anonymous tip.`,'minor');
+  } else {
+    const r=G.rivals.find(x=>x.id===op.targetRival);
+    if(r) log(`🕵️ SURVEIL: ${r.name} — strength ${r.strength}, aggression ${Math.round(r.aggression*100)}%`,'info');
+  }
+  updateHeader();renderRivals();
+}
+
+// ===================== END TURN =====================
+function endTurn(){
+  if(G.gameOver) return;
+  G.week++;G.opsUsedThisWeek=[];G.launderedThisWeek=0;
+  // income
+  const income=G.districts.filter(d=>d.status==='owned').reduce((s,d)=>s+d.income,0)+G.bonuses.weeklyBonus;
+  const payroll=G.crew.reduce((s,c)=>s+c.weeklyCost,0);
+  const net=income-payroll;
+  G.cash+=net;G.totalCashEarned+=Math.max(0,income);
+  log(`💵 Wk ${G.week}: $${income.toLocaleString()} income − $${payroll.toLocaleString()} payroll = Net $${net.toLocaleString()}`,'info');
+  // auto-launder through car wash
+  const carwash=G.laundryFronts.find(f=>f.id==='carwash'&&f.owned);
+  if(carwash&&G.dirtyCash>0){
+    const autoAmount=Math.min(G.dirtyCash,carwash.capacity);
+    const clean=Math.round(autoAmount*carwash.rate);
+    G.dirtyCash-=autoAmount;G.cash+=clean;G.totalDirtyLaundered+=autoAmount;
+    G.launderedThisWeek+=autoAmount;
+    G.heat=Math.min(100,G.heat+autoAmount/1000*carwash.heatPerK);
+    if(autoAmount>0) log(`🧺 AUTO-LAUNDER: $${autoAmount.toLocaleString()} → $${clean.toLocaleString()} (car wash)`,'info');
+  }
+  // lawyer retainer
+  if(G.market.find(m=>m.id==='lawyer_retainer'&&m.owned)){
+    G.fbiHeat=Math.max(0,G.fbiHeat-10);
+    G.crew.filter(c=>c.status==='imprisoned').forEach(c=>{if(Math.random()>0.3){c.status='idle';log(`⚖️ Lawyer got ${c.name} out`,'success');}});
+  }
+  // heat decay
+  let hd=5;if(G.upgrades.connections){hd+=15;G.fbiHeat=Math.max(0,G.fbiHeat-3);}
+  G.heat=Math.max(0,G.heat-hd);
+  // FBI natural decay (slow)
+  G.fbiHeat=Math.max(0,G.fbiHeat-2);
+  // crew
+  G.crew.forEach(c=>{
+    if(c.status==='active'){c.status='idle';}
+    const hc=G.upgrades.safehouses?.8:.5;
+    if(c.status==='injured'&&Math.random()<hc){c.status='idle';log(`💊 ${c.name} recovered`,'info');}
+    if(c.status==='imprisoned'&&Math.random()<.25){c.status='idle';log(`🔓 ${c.name} bailed out`,'info');}
+    if(c.status==='idle') giveCrewXP(c,5);
+    if(Math.random()>.7) c.loyalty=Math.max(10,Math.min(100,c.loyalty+(Math.random()>.5?2:-1)));
+  });
+  // raids
+  if(G.pendingRaid){conductRaid();G.pendingRaid=false;}
+  if(G.pendingFBIRaid){conductFBIRaid();G.pendingFBIRaid=false;}
+  // rivals
+  rivalTurn();
+  // drug fluctuation
+  fluctuateDrugPrices();
+  // events
+  randomEvent();
+  // turf war countdown
+  G.turfWars.forEach(w=>{
+    if(w.weeksLeft>0){
+      w.weeksLeft--;
+      if(w.weeksLeft===0){
+        const d=G.districts.find(x=>x.id===w.districtId);
+        if(d&&d.status==='owned'){
+          d.status='rival';d.faction=w.rivalId;G.territory--;
+          log(`💢 TURF WAR: ${w.districtName} LOST — you didn't respond in time!`,'fail');
+          notify('LOST '+w.districtName+'!',true);
+        }
+      }
+    }
+  });
+  // schedule threats
+  if(G.heat>=65&&Math.random()<.3){G.pendingRaid=true;if(G.bonuses.raidWarn)log(`📡 SCANNER: Raid next week!`,'warn');else log(`🌡️ Heat critical...`,'warn');}
+  if(G.fbiHeat>=80&&Math.random()<.4){G.pendingFBIRaid=true;log(`🕵️ FBI TASK FORCE mobilizing...`,'fbi');}
+  // win check
+  if(G.territory>=8){endGame(true);return;}
+  // ghost achievement tracking
+  const ghost=G.achievements.find(a=>a.id==='ghost');
+  if(ghost&&!ghost.unlocked){ghost.lowFBIStreak=(G.fbiHeat<20?(ghost.lowFBIStreak||0)+1:0);if(ghost.lowFBIStreak>=10){ghost.unlocked=true;notify('👻 ACHIEVEMENT: GHOST');log('🏆 ACHIEVEMENT: GHOST','event');}}
+  updateHeader();renderDistricts();renderCrew();renderOps();renderAlerts();checkGameOver();checkAchievements();
+}
+
+function conductRaid(){
+  let resist=G.bonuses.raidResist;if(G.upgrades.connections)resist+=30;
+  if(Math.random()*100<resist){log(`👮 POLICE RAID — Connections held them off!`,'success');return;}
+  const owned=G.districts.filter(d=>d.status==='owned').sort((a,b)=>a.defense-b.defense);
+  const target=owned[0];
+  if(target){target.status='neutral';target.faction=null;G.territory--;G.heat=Math.max(0,G.heat-20);log(`🚔 RAID: ${target.name} SEIZED by police!`,'fail');notify('DISTRICT SEIZED!',true);}
+  const atRisk=G.crew.filter(c=>c.status==='idle');
+  if(atRisk.length&&Math.random()>.55){const c=atRisk[Math.floor(Math.random()*atRisk.length)];c.status='imprisoned';log(`👮 ${c.name} ARRESTED`,'fail');}
+  addNewspaper('POLICE EXECUTE MAJOR CRACKDOWN',`Law enforcement conducted a large-scale operation targeting organized crime in Vice Harbor today, making several arrests and seizing property.`,'major');
+}
+function conductFBIRaid(){
+  if(Math.random()<.3){log(`🕵️ FBI RAID — You got away clean`,'success');G.fbiHeat=Math.max(0,G.fbiHeat-10);return;}
+  const owned=G.districts.filter(d=>d.status==='owned').sort((a,b)=>a.defense-b.defense);
+  const target=owned[Math.floor(Math.random()*Math.min(2,owned.length))];
+  if(target){target.status='neutral';target.faction=null;G.territory--;}
+  const imprisoned=G.crew.filter(c=>c.status==='idle');
+  if(imprisoned.length){const c=imprisoned[Math.floor(Math.random()*imprisoned.length)];c.status='imprisoned';}
+  G.dirtyCash=Math.round(G.dirtyCash*0.5);
+  G.fbiHeat=Math.max(0,G.fbiHeat-20);
+  log(`🕵️ FBI RAID EXECUTED — district seized, cash frozen, crew arrested!`,'fbi');
+  notify('FBI RAID!',true);
+  addNewspaper('FBI STRIKES AT HEART OF CRIME EMPIRE',`Federal agents executed a major multi-location raid today, seizing assets and making arrests. The operation is believed to be part of a long-running RICO investigation.`,'major');
+}
+
+function rivalTurn(){
+  G.rivals.forEach(r=>{
+    if(Math.random()<r.aggression*.35){
+      const ownedWeak=G.districts.find(d=>d.status==='owned'&&d.defense<=2);
+      const neutral=G.districts.find(d=>d.status==='neutral');
+      if(ownedWeak&&Math.random()<.5){
+        createTurfWar(ownedWeak,r);
+      } else if(neutral&&Math.random()<.6){
+        neutral.status='rival';neutral.faction=r.id;
+        log(`⚔️ ${r.name} claimed ${neutral.name}`,'fail');
+      }
+    }
+    if(G.week%5===0) r.strength=Math.min(100,r.strength+5);
+  });
+}
+
+function randomEvent(){
+  // 30% chance of a narrative event with choices
+  if(Math.random()<.2){
+    narrativeEvent();
+    return;
+  }
+  const evts=[
+    ()=>{const g=Math.round(Math.random()*12000+3000);G.cash+=g;G.totalCashEarned+=g;log(`🎲 Windfall: $${g.toLocaleString()}`,'success');},
+    ()=>{const l=Math.round(Math.random()*10000+2000);G.cash=Math.max(0,G.cash-l);log(`👮 Shakedown: paid $${l.toLocaleString()}`,'warn');},
+    ()=>{G.heat=Math.min(100,G.heat+12);log(`📰 Journalist snooping. Heat +12`,'warn');addNewspaper('JOURNALIST INVESTIGATES CRIME RING',`A local investigative reporter says she has uncovered evidence of organized criminal activity in Vice Harbor. Police say they are reviewing her findings.`,'minor');},
+    ()=>{G.heat=Math.max(0,G.heat-10);log(`🤝 City Hall contact. Heat -10`,'success');},
+    ()=>{const c=G.crew[Math.floor(Math.random()*G.crew.length)];if(c){c.loyalty=Math.min(100,c.loyalty+10);giveCrewXP(c,20);log(`⬆️ ${c.name} improved`,'info');}},
+    ()=>{log(`🌙 Quiet week.`,'info');},
+    ()=>{const tip=Math.round(Math.random()*8000+1000);G.cash+=tip;G.totalCashEarned+=tip;log(`🤫 Street tip: $${tip.toLocaleString()}`,'success');},
+    ()=>{G.reputation+=30;log(`🗣️ Rep growing (+30)`,'event');},
+    ()=>{const l=Math.round(Math.random()*12000+4000);G.cash=Math.max(0,G.cash-l);log(`🔥 Product lost in fire: $${l.toLocaleString()}`,'fail');},
+    ()=>{const d=G.districts.find(x=>x.status==='owned');if(d){d.income=Math.round(d.income*1.08);log(`📈 ${d.name} booming — income up`,'success');}},
+    ()=>{G.heat=Math.min(100,G.heat+8);log(`🚁 Police helo circling. Heat +8`,'warn');},
+    ()=>{G.fbiHeat=Math.min(100,G.fbiHeat+8);log(`🕵️ FBI informant reported activity. FBI heat +8`,'fbi');},
+    ()=>{const c=G.crew.find(x=>x.status==='idle');if(c){const b=Math.round(Math.random()*4000+500);G.cash+=b;G.totalCashEarned+=b;log(`💡 ${c.name} side job: +$${b.toLocaleString()}`,'success');}},
+    ()=>{// drug market event
+      const d=G.drugs[Math.floor(Math.random()*G.drugs.length)];
+      d.sellPrice=Math.round(d.sellPrice*1.3);
+      G.drugHistory.push({week:G.week,type:'price_up',msg:`📈 DEMAND SPIKE: ${d.name} sell price +30%`});
+      log(`📈 DRUG DEMAND: ${d.name} prices surging this week!`,'event');
+    },
+  ];
+  if(Math.random()>.3) evts[Math.floor(Math.random()*evts.length)]();
+}
+
+// ===================== NARRATIVE EVENTS =====================
+function narrativeEvent(){
+  const events=[
+    {
+      title:'🤝 CORRUPT OFFICIAL APPROACHES',
+      desc:'A city official contacts you. He wants $15,000 in exchange for advance notice of police operations. He seems legitimate — but it could be a sting.',
+      choices:[
+        {text:'Pay up ($15K) — get advance warnings', action:()=>{if(G.cash>=15000){G.cash-=15000;G.bonuses.raidWarn=true;log('City official on payroll — raid warnings enabled','success');}else log('Not enough cash','fail');}},
+        {text:'Decline — too risky',action:()=>{log('Declined the official. Smart move.','info');}},
+        {text:'Report to our own guys — use for intel',action:()=>{G.fbiHeat=Math.max(0,G.fbiHeat-5);G.heat=Math.max(0,G.heat-5);log('Played it cool — some heat reduced','success');}},
+      ]
+    },
+    {
+      title:'💣 RIVAL DEMANDS TRIBUTE',
+      desc:'The Nitti Family sends word: pay $20,000 in weekly tribute or expect consequences. They control three districts and are not bluffing.',
+      choices:[
+        {text:'Pay tribute ($20K/week for 3 weeks)',action:()=>{if(G.cash>=20000){G.cash-=20000;G.heat=Math.max(0,G.heat-8);log('Paid tribute to Nitti. They back off temporarily.','info');}else log('Can\'t pay — expect retaliation','warn');}},
+        {text:'Refuse and reinforce defenses',action:()=>{G.districts.filter(d=>d.status==='owned').forEach(d=>d.defense=Math.min(5,d.defense+1));log('Defenses reinforced. Nitti is angry.','warn');const nitti=G.rivals.find(r=>r.id==='nitti');if(nitti)nitti.aggression=Math.min(0.9,nitti.aggression+0.2);}},
+        {text:'Counter-offer: propose a truce ($8K)',action:()=>{if(G.cash>=8000){G.cash-=8000;const nitti=G.rivals.find(r=>r.id==='nitti');if(nitti)nitti.aggression=Math.max(0.1,nitti.aggression-0.1);log('Truce negotiated with Nitti','success');}else log('Not enough cash','fail');}},
+      ]
+    },
+    {
+      title:'🔒 CREW MEMBER IN TROUBLE',
+      desc:`One of your crew got sloppy. Police have them under surveillance. You can burn resources to clean it up — or leave them exposed.`,
+      choices:[
+        {text:'Send a cleaner team ($8K)',action:()=>{if(G.cash>=8000){G.cash-=8000;G.heat=Math.max(0,G.heat-6);log('Cleaner handled it. No arrest.','success');}else log('Not enough cash — crew is at risk','warn');}},
+        {text:'Let them handle it — trust the crew',action:()=>{if(Math.random()>.5){log('They handled it. Lucky.','info');}else{const c=G.crew.find(x=>x.status==='idle');if(c){c.status='imprisoned';log(`${c.name} arrested — let them down`,'fail');}}}},
+        {text:'Cut them loose (fire the crew member)',action:()=>{const c=G.crew.find(x=>x.status==='idle');if(c){G.crew.splice(G.crew.indexOf(c),1);G.heat=Math.max(0,G.heat-4);log(`${c.name} cut loose — heat down`,'warn');updateHeader();renderCrew();}}}
+      ]
+    },
+    {
+      title:'📦 MYSTERIOUS SHIPMENT',
+      desc:'A truck left outside your warehouse. Inside: 200 units of cocaine, no note, no sender. Taking it adds dirty cash but increases risk.',
+      choices:[
+        {text:'Take the shipment — free product',action:()=>{const d=G.drugs.find(x=>x.id==='coke');if(d){d.stock+=200;G.fbiHeat=Math.min(100,G.fbiHeat+15);G.heat=Math.min(100,G.heat+10);log('Took the mysterious shipment. +200 cocaine. Heat up.','warn');}}},
+        {text:'Burn the truck — too suspicious',action:()=>{G.heat=Math.min(100,G.heat+5);log('Burned the evidence. Safer.','info');}},
+        {text:'Sell info to rivals — make $10K',action:()=>{G.cash+=10000;G.totalCashEarned+=10000;log('Sold the tip — $10K clean cash','success');}},
+      ]
+    },
+  ];
+  const ev=events[Math.floor(Math.random()*events.length)];
+  showEventModal(ev);
+}
+
+function showEventModal(ev){
+  document.getElementById('ev-modal-title').textContent=ev.title;
+  document.getElementById('ev-modal-desc').textContent=ev.desc;
+  const choicesEl=document.getElementById('ev-modal-choices');
+  choicesEl.innerHTML='';
+  ev.choices.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';btn.textContent=c.text;
+    btn.onclick=()=>{c.action();closeEventModal();updateHeader();renderDistricts();renderCrew();};
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('event-modal').classList.add('active');
+}
+function closeEventModal(){document.getElementById('event-modal').classList.remove('active');}
+
+// ===================== STATS =====================
+function renderStats(){
+  const income=G.districts.filter(d=>d.status==='owned').reduce((s,d)=>s+d.income,0);
+  const payroll=G.crew.reduce((s,c)=>s+c.weeklyCost,0);
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-box"><div class="sb-l">TOTAL CASH EARNED</div><div class="sb-v">$${(G.totalCashEarned/1000).toFixed(0)}K</div></div>
+    <div class="stat-box"><div class="sb-l">CURRENT CLEAN CASH</div><div class="sb-v">$${(G.cash/1000).toFixed(0)}K</div></div>
+    <div class="stat-box"><div class="sb-l">DIRTY CASH HELD</div><div class="sb-v" style="color:#ffaa44">$${(G.dirtyCash/1000).toFixed(0)}K</div></div>
+    <div class="stat-box"><div class="sb-l">TOTAL LAUNDERED</div><div class="sb-v">$${(G.totalDirtyLaundered/1000).toFixed(0)}K</div></div>
+    <div class="stat-box"><div class="sb-l">WEEKS SURVIVED</div><div class="sb-v">${G.week}</div></div>
+    <div class="stat-box"><div class="sb-l">REPUTATION</div><div class="sb-v">${G.reputation}</div><div class="sb-s">${REP_RANKS.slice().reverse().find(r=>G.reputation>=r.min)?.name}</div></div>
+    <div class="stat-box"><div class="sb-l">OPS SUCCESS RATE</div><div class="sb-v">${G.totalOpsRun>0?Math.round(G.totalOpsSuccess/G.totalOpsRun*100):0}%</div><div class="sb-s">${G.totalOpsSuccess}/${G.totalOpsRun}</div></div>
+    <div class="stat-box"><div class="sb-l">KILLS</div><div class="sb-v">${G.kills}</div></div>
+    <div class="stat-box"><div class="sb-l">WEEKLY INCOME</div><div class="sb-v">$${income.toLocaleString()}</div></div>
+    <div class="stat-box"><div class="sb-l">CREW PAYROLL</div><div class="sb-v">$${payroll.toLocaleString()}</div></div>
+    <div class="stat-box"><div class="sb-l">DISTRICTS</div><div class="sb-v">${G.territory}/10</div></div>
+    <div class="stat-box"><div class="sb-l">CONTRACTS DONE</div><div class="sb-v">${G.contractsDone}</div></div>`;
+  const achEl=document.getElementById('achievements-list');achEl.innerHTML='';
+  G.achievements.forEach(a=>{
+    achEl.innerHTML+=`<div class="ach ${a.unlocked?'':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div>
+      ${a.unlocked?'<span style="color:var(--gold);font-family:\'Share Tech Mono\',monospace;font-size:.62rem;margin-left:auto">DONE</span>':''}
+    </div>`;
+  });
+}
+
+// ===================== ACHIEVEMENTS/GAMEOVER =====================
+function checkAchievements(){
+  G.achievements.forEach(a=>{
+    if(!a.unlocked&&a.check&&a.check()){a.unlocked=true;notify('🏆 '+a.name);log(`🏆 ACHIEVEMENT: ${a.name}`,'event');G.reputation+=50;}
+  });
+}
+function checkGameOver(){
+  if(G.heat>=100) endGame(false,'heat');
+  else if(G.fbiHeat>=100) endGame(false,'fbi');
+  else if(G.cash<=0&&G.dirtyCash<=0&&G.territory===0&&G.week>3) endGame(false,'broke');
+  else if(G.crew.length===0&&G.week>3) endGame(false,'nocrew');
+}
+function endGame(win,reason){
+  G.gameOver=true;
+  document.getElementById('game-over').classList.add('active');
+  const title=document.getElementById('go-title');
+  if(win){title.textContent='EMPIRE BUILT';title.style.color='var(--gold)';document.getElementById('go-msg').textContent=`8 districts. Rivals broken. The city is YOURS.`;}
+  else{
+    title.textContent='GAME OVER';title.style.color='var(--blood)';
+    const msgs={heat:'SWAT kicked down your door. Your empire is dust.',fbi:'The FBI built an iron-clad RICO case. Life in prison.',broke:'Flat broke. No territory. The syndicate dissolved.',nocrew:'Your crew abandoned you. Can\'t run alone.'};
+    document.getElementById('go-msg').textContent=msgs[reason]||'The syndicate fell.';
+  }
+  document.getElementById('final-stats').innerHTML=`
+    <div class="fs"><div class="fs-l">WEEKS</div><div class="fs-v">${G.week}</div></div>
+    <div class="fs"><div class="fs-l">CASH</div><div class="fs-v">$${(G.cash/1000).toFixed(0)}K</div></div>
+    <div class="fs"><div class="fs-l">REP</div><div class="fs-v">${G.reputation}</div></div>
+    <div class="fs"><div class="fs-l">TURF</div><div class="fs-v">${G.territory}/10</div></div>
+    <div class="fs"><div class="fs-l">KILLS</div><div class="fs-v">${G.kills}</div></div>
+    <div class="fs"><div class="fs-l">OPS</div><div class="fs-v">${G.totalOpsSuccess}</div></div>`;
+}
+function restartGame(){
+  document.getElementById('game-over').classList.remove('active');
+  document.getElementById('event-log').innerHTML='';
+  initState();render();
+  log('🎬 Vice Harbor — Three factions rule. You hold Downtown. Take it all.','info');
+  log('💡 NEW: Drug Trade, Laundry, FBI System, Crew XP, Turf Wars, Newspaper. Good luck.','event');
+}
+
+// ===================== MISC =====================
+function notify(msg,type=false){
+  document.querySelectorAll('.notification').forEach(e=>e.remove());
+  const el=document.createElement('div');
+  el.className=`notification ${type===true?'bad':type==='fbi-note'?'fbi-note':''}`;
+  el.textContent=msg;document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3100);
+}
+function log(msg,type='info'){
+  const el=document.getElementById('event-log');
+  const entry=document.createElement('div');
+  entry.className=`log-entry ${type}`;
+  entry.innerHTML=`<span class="log-time">[W${G.week}]</span>${msg}`;
+  el.prepend(entry);
+  while(el.children.length>50) el.removeChild(el.lastChild);
+}
+
+// ===== INIT =====
+initState();render();
+addNewspaper('CRIME ON THE RISE IN VICE HARBOR','Local authorities are concerned about a surge in organized criminal activity across multiple neighborhoods. Police Commissioner vows crackdown.','minor');
+log('🎬 VICE HARBOR — Three factions control the city. You own Downtown. Take everything.','info');
+log('💡 NEW SYSTEMS: 💊 Drug Trade (buy/sell), 🧺 Money Laundering, 🕵️ FBI investigation meter, ⭐ Crew XP leveling, ⚔️ Turf Wars with choices, 📰 Newspaper front page.','event');
+
+// ===================== SYNTH AUDIO ENGINE =====================
+const synth = {
+    ctx: null,
+    
+    // Initialize the Audio Context (must be called after a user gesture)
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    },
+
+    // A crisp, retro-style UI click sound
+    playClick() {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        // Connect nodes: Oscillator -> Gain (Volume) -> Speakers
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        // Sound Settings
+        osc.type = 'sine'; // 'sine' is smooth, 'square' is retro/bit-like
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime); // Starting pitch
+        osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1); // Pitch drop
+
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime); // Volume
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1); // Fade out
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+    },
+
+    // A subtle low-frequency hum for the background
+    playAmbience() {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        
+        // Only start if not already playing
+        if (this.ambienceStarted) return;
+        this.ambienceStarted = true;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(60, this.ctx.currentTime); // Low hum
+        gain.gain.setValueAtTime(0.02, this.ctx.currentTime); // Very quiet
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+    }
+};
+
+// ===================== GLOBAL EVENT LISTENER =====================
+document.addEventListener('click', (e) => {
+    // 1. Always try to start/resume audio on any click
+    synth.init();
+    synth.playAmbience();
+
+    // 2. Identify if we clicked a button, tab, or district
+    const isButton = e.target.closest('button');
+    const isTab = e.target.closest('.tab');
+    const isDistrict = e.target.closest('.district');
+    const isOp = e.target.closest('.op-card');
+
+    // 3. Play the synth click
+    if (isButton || isTab || isDistrict || isOp) {
+        synth.playClick();
+    }
+});
+
+</script>
+</body>
+</html>
